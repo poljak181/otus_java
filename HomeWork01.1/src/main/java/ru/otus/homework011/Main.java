@@ -7,9 +7,9 @@ public class Main {
             return;
         }
 
-        StringBuilder builder = new StringBuilder();
-        for (int i = 0; i < args.length; i++) {
-            builder.append(args[i] + " ");
+        StringBuilder builder = new StringBuilder(args[0]);
+        for (int i = 1; i < args.length; i++) {
+            builder.append(" " + args[i]);
         }
 
         StringAnalyzer.printCharacterOccurrence(builder.toString());
