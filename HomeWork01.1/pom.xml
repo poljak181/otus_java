@@ -73,7 +73,9 @@
                     <proguardVersion>6.0.3</proguardVersion>
                     <obfuscate>true</obfuscate>
                     <outjar>HomeWork01.1-release.jar</outjar>
-
+                    <libs>
+                        <lib>${java.home}/lib/rt.jar</lib>
+                    </libs>
                     <options>
                         <option>-keep public class ru.otus.homework011.Main {public static void main(java.lang.String[]);}</option>
                         <option>-dontwarn</option>
