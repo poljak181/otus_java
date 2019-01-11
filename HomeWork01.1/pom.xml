@@ -77,6 +77,7 @@
                     <options>
                         <option>-keep public class ru.otus.homework011.Main {public static void main(java.lang.String[]);}</option>
                         <option>-dontwarn</option>
+                        <option>-keepattributes *Annotation*,SourceFile,LineNumberTable</option>
                     </options>
 
                </configuration>
