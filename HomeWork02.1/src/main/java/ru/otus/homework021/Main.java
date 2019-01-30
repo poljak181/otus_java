@@ -67,6 +67,17 @@ public class Main {
             }
         };
 
+        final var longArrayListSameObjectsFactory = new Factory() {
+            @Override
+            public List<Long> createElement(int arraySize) {
+                var list = new ArrayList<Long>();
+                for (int i = 0; i < arraySize; i++) {
+                    list.add(100L);
+                }
+                return list;
+            }
+        };
+
         try {
             SizeMeasurer.calculateSize(objectFactory, 0);
             SizeMeasurer.calculateSize(longObjectFactory, 0);
@@ -97,6 +108,10 @@ public class Main {
             SizeMeasurer.calculateSize(longArrayListFactory, 3);
             SizeMeasurer.calculateSize(longArrayListFactory, 4);
 
+            System.out.println("\nArrayList<Long> with same objects");
+            SizeMeasurer.calculateSize(longArrayListSameObjectsFactory, 0);
+            SizeMeasurer.calculateSize(longArrayListSameObjectsFactory, 1);
+            SizeMeasurer.calculateSize(longArrayListSameObjectsFactory, 10);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
