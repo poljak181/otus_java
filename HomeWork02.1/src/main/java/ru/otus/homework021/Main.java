@@ -7,55 +7,6 @@ public class Main {
     public static void main(String... args) {
         System.out.println("Size measurer\n");
 
-        final var objectFactory = new Factory() {
-            @Override
-            public Object createElement(int arraySize) {
-                return new Object();
-            }
-        };
-
-        final var longObjectFactory = new Factory() {
-            @Override
-            public Long createElement(int arraySize) {
-                return new Long(20L);
-            }
-        };
-
-        final var stringFactory = new Factory() {
-            @Override
-            public String createElement(int arraySize) {
-                return new String();
-            }
-        };
-
-        final var myClassFactory  = new Factory() {
-            @Override
-            public MyClass createElement(int arraySize) {
-                return new MyClass();
-            }
-        };
-
-        final var byteArrayFactory = new Factory() {
-            @Override
-            public byte[] createElement(int arraySize) {
-                return new byte[arraySize];
-            }
-        };
-
-        final var intArrayFactory = new Factory() {
-            @Override
-            public int[] createElement(int arraySize) {
-                return new int[arraySize];
-            }
-        };
-
-        final var longArrayFactory = new Factory() {
-            @Override
-            public long[] createElement(int arraySize) {
-                return new long[arraySize];
-            }
-        };
-
         final var longArrayListFactory = new Factory() {
             @Override
             public List<Long> createElement(int arraySize) {
@@ -79,27 +30,27 @@ public class Main {
         };
 
         try {
-            SizeMeasurer.calculateSize(objectFactory, 0);
-            SizeMeasurer.calculateSize(longObjectFactory, 0);
-            SizeMeasurer.calculateSize(stringFactory, 0);
-            SizeMeasurer.calculateSize(myClassFactory, 0);
+            SizeMeasurer.calculateSize((size) -> new Object(), 0);
+            SizeMeasurer.calculateSize((size) -> new Long(20L), 0);
+            SizeMeasurer.calculateSize((size) -> new String(), 0);
+            SizeMeasurer.calculateSize((size) -> new MyClass(), 0);
 
-            SizeMeasurer.calculateSize(byteArrayFactory, 0);
-            SizeMeasurer.calculateSize(byteArrayFactory, 1);
-            SizeMeasurer.calculateSize(byteArrayFactory, 8);
-            SizeMeasurer.calculateSize(byteArrayFactory, 9);
+            SizeMeasurer.calculateSize((size) -> new byte[size], 0);
+            SizeMeasurer.calculateSize((size) -> new byte[size], 1);
+            SizeMeasurer.calculateSize((size) -> new byte[size], 8);
+            SizeMeasurer.calculateSize((size) -> new byte[size], 9);
 
-            SizeMeasurer.calculateSize(intArrayFactory, 0);
-            SizeMeasurer.calculateSize(intArrayFactory, 1);
-            SizeMeasurer.calculateSize(intArrayFactory, 2);
-            SizeMeasurer.calculateSize(intArrayFactory, 3);
-            SizeMeasurer.calculateSize(intArrayFactory, 4);
+            SizeMeasurer.calculateSize((size) -> new int[size], 0);
+            SizeMeasurer.calculateSize((size) -> new int[size], 1);
+            SizeMeasurer.calculateSize((size) -> new int[size], 2);
+            SizeMeasurer.calculateSize((size) -> new int[size], 3);
+            SizeMeasurer.calculateSize((size) -> new int[size], 4);
 
-            SizeMeasurer.calculateSize(longArrayFactory, 0);
-            SizeMeasurer.calculateSize(longArrayFactory, 1);
-            SizeMeasurer.calculateSize(longArrayFactory, 2);
-            SizeMeasurer.calculateSize(longArrayFactory, 3);
-            SizeMeasurer.calculateSize(longArrayFactory, 4);
+            SizeMeasurer.calculateSize((size) -> new long[size], 0);
+            SizeMeasurer.calculateSize((size) -> new long[size], 1);
+            SizeMeasurer.calculateSize((size) -> new long[size], 2);
+            SizeMeasurer.calculateSize((size) -> new long[size], 3);
+            SizeMeasurer.calculateSize((size) -> new long[size], 4);
 
             System.out.println("\nArrayList<Long>");
             SizeMeasurer.calculateSize(longArrayListFactory, 0);
