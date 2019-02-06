@@ -3,21 +3,21 @@ package ru.otus.homework031;
 import java.util.*;
 
 public class MyArrayList<T> implements List<T> {
-    private int capacity = 10;
+    private int capacity = 5;
     private int size = 0;
     private T[] array = (T[]) new Object[capacity];
 
-    public int size() {
+    public int size() { // +
         return size;
     }
 
-    public boolean isEmpty() {
+    public boolean isEmpty() { // +
         return size == 0;
     }
 
-    public boolean contains(Object o) {
+    public boolean contains(Object o) { // +
         for (int i = 0; i < size; i++) {
-            if (array[i].equals((T[])o)) {
+            if (array[i].equals(o)) {
                 return true;
             }
         }
@@ -29,28 +29,36 @@ public class MyArrayList<T> implements List<T> {
     }
 
     public Object[] toArray() {
-        return new Object[0];
+        return array;
     }
 
     public <T1> T1[] toArray(T1[] a) {
         return null;
     }
 
-    public boolean add(T t) {
-        if (size < capacity) {
-            array[size] = t;
-            ++size;
-        } else {
-            capacity *= 2;
-            array = Arrays.copyOf(array, capacity);
-            array[size] = t;
-            ++size;
+    public boolean add(T t) { // +
+        try {
+            add(size, t);
+            return true;
+        } catch (RuntimeException e) {
+            return false;
         }
-        return true;
     }
 
     public boolean remove(Object o) {
-        return false;
+        T[] newArray = (T[]) new Object[capacity]; // TODO: we can use only origin array (remove - erase)
+        int newArrayIndex = 0;
+        int removedCount = 0;
+        for (int i = 0; i < size; i++) {
+            if (!array[i].equals(o)) {
+                newArray[newArrayIndex++] = array[i];
+            } else {
+                ++removedCount;
+            }
+        }
+        size -= removedCount;
+        array = newArray;
+        return removedCount != 0;
     }
 
     public boolean containsAll(Collection<?> c) {
@@ -66,7 +74,22 @@ public class MyArrayList<T> implements List<T> {
     }
 
     public boolean removeAll(Collection<?> c) {
-        return false;
+        T[] newArray = (T[]) new Object[capacity]; // TODO: we can use only origin array (remove - erase)
+        int newArrayIndex = 0;
+        int removedCount = 0;
+        for (int i = 0; i < size; i++) {
+            var iter = c.iterator();
+            while (iter.hasNext()) {
+                if (!array[i].equals(iter.next())) {
+                    newArray[newArrayIndex++] = array[i];
+                } else {
+                    ++removedCount;
+                }
+            }
+        }
+        size -= removedCount;
+        array = newArray;
+        return removedCount != 0;
     }
 
     public boolean retainAll(Collection<?> c) {
@@ -87,12 +110,46 @@ public class MyArrayList<T> implements List<T> {
         return null;
     }
 
-    public void add(int index, T element) {
+    public void add(int index, T element) { // +
+        if (index < 0 || index > size()) {
+            throw new IndexOutOfBoundsException();
+        }
 
+        if (element == null) {
+            throw new NullPointerException();
+        }
+
+        if (size >= capacity) {
+            capacity *= 2;
+            array = Arrays.copyOf(array, capacity);
+        }
+
+        if (index == size) {
+            array[size] = element;
+        } else {
+            for (int i = size; i > index; i--) {
+                swap(i, i - 1);
+            }
+            array[index] = element;
+        }
+
+        ++size;
+
+        System.out.println(Arrays.toString(array));
     }
 
     public T remove(int index) {
-        return null;
+        if (index >= size) {
+            return null;
+        } else {
+            var tmpObject = array[index];
+            for (int i = index; i < size - 1; i++) {
+                array[index] = array[index + 1];
+                ++index;
+            }
+            --size;
+            return tmpObject;
+        }
     }
 
     public int indexOf(Object o) {
@@ -113,5 +170,16 @@ public class MyArrayList<T> implements List<T> {
 
     public List<T> subList(int fromIndex, int toIndex) {
         return null;
+    }
+
+    private void swap(int i, int j) {
+        if (i >= capacity || j >= capacity || i == j) {
+            System.out.println("Can't swap elements");
+            return;
+        }
+
+        T temp = array[i];
+        array[i] = array[j];
+        array[j] = temp;
     }
 }
