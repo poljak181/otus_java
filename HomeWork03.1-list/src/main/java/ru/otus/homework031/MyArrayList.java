@@ -46,19 +46,23 @@ public class MyArrayList<T> implements List<T> {
     }
 
     public boolean remove(Object o) {
-        T[] newArray = (T[]) new Object[capacity]; // TODO: we can use only origin array (remove - erase)
-        int newArrayIndex = 0;
-        int removedCount = 0;
+        if (o == null) {
+            throw new NullPointerException();
+        }
+
         for (int i = 0; i < size; i++) {
-            if (!array[i].equals(o)) {
-                newArray[newArrayIndex++] = array[i];
-            } else {
-                ++removedCount;
+            if (array[i].equals(o)) {
+                while (i < size - 1) {
+                    swap(i, i + 1);
+                    ++i;
+                }
+                array[size - 1] = null;
+                --size;
+                System.out.println(Arrays.toString(array));
+                return true;
             }
         }
-        size -= removedCount;
-        array = newArray;
-        return removedCount != 0;
+        return false;
     }
 
     public boolean containsAll(Collection<?> c) {
@@ -101,8 +105,9 @@ public class MyArrayList<T> implements List<T> {
     }
 
     public T get(int index) {
-        if (index >= size)
+        if (index >= size || index < 0) {
             throw new ArrayIndexOutOfBoundsException();
+        }
         return array[index];
     }
 
@@ -111,7 +116,7 @@ public class MyArrayList<T> implements List<T> {
     }
 
     public void add(int index, T element) { // +
-        if (index < 0 || index > size()) {
+        if (index > size || index < 0) {
             throw new IndexOutOfBoundsException();
         }
 
@@ -139,17 +144,19 @@ public class MyArrayList<T> implements List<T> {
     }
 
     public T remove(int index) {
-        if (index >= size) {
-            return null;
-        } else {
-            var tmpObject = array[index];
-            for (int i = index; i < size - 1; i++) {
-                array[index] = array[index + 1];
-                ++index;
-            }
-            --size;
-            return tmpObject;
+        if (index >= size || index < 0) {
+            throw new ArrayIndexOutOfBoundsException();
         }
+
+        for (int i = index; i < size - 1; i++) {
+            swap(i, i + 1);
+        }
+
+        T removedObject = array[size - 1];
+        array[size - 1] = null;
+        --size;
+        System.out.println(Arrays.toString(array));
+        return removedObject;
     }
 
     public int indexOf(Object o) {

@@ -34,10 +34,29 @@ public class Main {
         list.add(4, 111);
     }
 
+    private static void testRemoveObject() {
+        var list = new MyArrayList<Integer>();
+        list.add(1);
+        list.add(2);
+        list.add(3);
+        list.add(4);
+        list.add(5);
+        list.add(1);
+        list.add(2);
+        list.add(3);
+        list.add(4);
+        list.add(5);
+        list.remove(Integer.valueOf(3));
+
+        System.out.println("Removed object: " + list.remove(7) + ", size: " + list.size());
+        System.out.println("Removed object: " + list.remove(0) + ", size: " + list.size());
+    }
+
     public static void main(String[] args) {
 
-        testAdd();
-        testAddIndex();
+//        testAdd();
+//        testAddIndex();
+        testRemoveObject();
 
 //        final var list1 = prepareList(1, 2, 3, 4, 5, 6, null);
 //        System.out.println("List size: " + list1.size());
