@@ -1,6 +1,7 @@
 package ru.otus.homework031;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 public class Main {
@@ -52,11 +53,44 @@ public class Main {
         System.out.println("Removed object: " + list.remove(0) + ", size: " + list.size());
     }
 
+    private static void testIterator() {
+        var list = new MyArrayList<Integer>();
+        list.add(1);
+        list.add(2);
+        list.add(3);
+        list.add(4);
+        list.add(5);
+
+        final var iter = list.iterator();
+
+        while (iter.hasNext()) {
+            System.out.println(iter.next());
+        }
+    }
+
+    private static void testRemoveAll() {
+        var list = new MyArrayList<Integer>();
+        list.add(1);
+        list.add(2);
+        list.add(3);
+        list.add(4);
+        list.add(5);
+
+        Collection<Integer> c = new ArrayList<>();
+        c.add(1);
+        c.add(4);
+        c.add(5);
+
+        list.removeAll(c);
+    }
+
     public static void main(String[] args) {
 
 //        testAdd();
 //        testAddIndex();
-        testRemoveObject();
+//        testRemoveObject();
+//        testIterator();
+        testRemoveAll();
 
 //        final var list1 = prepareList(1, 2, 3, 4, 5, 6, null);
 //        System.out.println("List size: " + list1.size());

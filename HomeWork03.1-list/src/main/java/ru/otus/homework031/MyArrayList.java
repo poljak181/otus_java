@@ -1,5 +1,6 @@
 package ru.otus.homework031;
 
+import java.lang.reflect.Array;
 import java.util.*;
 
 public class MyArrayList<T> implements List<T> {
@@ -24,8 +25,30 @@ public class MyArrayList<T> implements List<T> {
         return false;
     }
 
+    public class MyArrayListIterator<T> implements Iterator<T> {
+        private int index = 0;
+        private T[] array;
+
+        MyArrayListIterator(T[] array) {
+            this.array = array;
+        }
+
+        @Override
+        public boolean hasNext() {
+            return index < size;
+        }
+
+        @Override
+        public T next() {
+            if (!hasNext()) {
+                throw new NoSuchElementException();
+            }
+            return this.array[index++];
+        }
+    }
+
     public Iterator<T> iterator() {
-        return null;
+        return new MyArrayListIterator<>(array);
     }
 
     public Object[] toArray() {
@@ -78,22 +101,15 @@ public class MyArrayList<T> implements List<T> {
     }
 
     public boolean removeAll(Collection<?> c) {
-        T[] newArray = (T[]) new Object[capacity]; // TODO: we can use only origin array (remove - erase)
-        int newArrayIndex = 0;
-        int removedCount = 0;
-        for (int i = 0; i < size; i++) {
-            var iter = c.iterator();
-            while (iter.hasNext()) {
-                if (!array[i].equals(iter.next())) {
-                    newArray[newArrayIndex++] = array[i];
-                } else {
-                    ++removedCount;
-                }
+        final var iterator = c.iterator();
+        boolean result = false;
+        while (iterator.hasNext()) {
+            if (remove(iterator.next())) {
+                result = true;
             }
         }
-        size -= removedCount;
-        array = newArray;
-        return removedCount != 0;
+
+        return result;
     }
 
     public boolean retainAll(Collection<?> c) {
