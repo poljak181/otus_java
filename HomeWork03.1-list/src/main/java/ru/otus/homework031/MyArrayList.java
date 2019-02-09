@@ -1,12 +1,20 @@
 package ru.otus.homework031;
 
-import java.lang.reflect.Array;
 import java.util.*;
 
 public class MyArrayList<T> implements List<T> {
-    private int capacity = 5;
+    private static int INITIAL_CAPACITY = 5;
+    private int capacity = INITIAL_CAPACITY;
     private int size = 0;
     private T[] array = (T[]) new Object[capacity];
+
+//    MyArrayList(T... args) {
+//        array = args;
+//        size = args.length;
+//        capacity = args.length;
+//        System.out.println("Construct array. Type name:" + array.getClass().getTypeName());
+//        System.out.println("Constructed array:" + Arrays.toString(array));
+//    }
 
     public int size() { // +
         return size;
@@ -52,11 +60,23 @@ public class MyArrayList<T> implements List<T> {
     }
 
     public Object[] toArray() {
-        return array;
+        return Arrays.copyOf(array, size);
     }
 
     public <T1> T1[] toArray(T1[] a) {
-        return null;
+        if (a == null) {
+            throw new NullPointerException();
+        }
+
+        if (a.length < size) {
+            return (T1[]) Arrays.copyOf(array, size, a.getClass());
+        } else {
+            System.arraycopy(array, 0, a, 0, size);
+            for (int i = size; i < a.length; i++) {
+                a[i] = null;
+            }
+            return a;
+        }
     }
 
     public boolean add(T t) { // +
@@ -117,7 +137,9 @@ public class MyArrayList<T> implements List<T> {
     }
 
     public void clear() {
-
+        size = 0;
+        capacity = INITIAL_CAPACITY;
+        array = (T[]) new Object[capacity];
     }
 
     public T get(int index) {
@@ -176,11 +198,29 @@ public class MyArrayList<T> implements List<T> {
     }
 
     public int indexOf(Object o) {
-        return 0;
+        if (o == null) {
+            throw new NullPointerException();
+        }
+
+        for (int i = 0; i < size; i++) {
+            if (array[i].equals(o)) {
+                return i;
+            }
+        }
+        return -1;
     }
 
     public int lastIndexOf(Object o) {
-        return 0;
+        if (o == null) {
+            throw new NullPointerException();
+        }
+
+        for (int i = size - 1; i >= 0; i--) {
+            if (array[i].equals(o)) {
+                return i;
+            }
+        }
+        return -1;
     }
 
     public ListIterator<T> listIterator() {
@@ -194,6 +234,7 @@ public class MyArrayList<T> implements List<T> {
     public List<T> subList(int fromIndex, int toIndex) {
         return null;
     }
+
 
     private void swap(int i, int j) {
         if (i >= capacity || j >= capacity || i == j) {
