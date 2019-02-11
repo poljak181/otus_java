@@ -20,12 +20,10 @@ public class MyArrayList<T> implements List<T> {
         return indexOf(o) >= 0;
     }
 
-    public class MyArrayListIterator<T> implements Iterator<T> {
-        private int index = 0;
-        private T[] array;
+    public class MyIterator implements Iterator<T> {
+        int index = 0;
 
-        MyArrayListIterator(T[] array) {
-            this.array = array;
+        public MyIterator() {
         }
 
         @Override
@@ -38,12 +36,12 @@ public class MyArrayList<T> implements List<T> {
             if (!hasNext()) {
                 throw new NoSuchElementException();
             }
-            return this.array[index++];
+            return (T)MyArrayList.this.array[index++];
         }
     }
 
     public Iterator<T> iterator() {
-        return new MyArrayListIterator<>(array);
+        return new MyIterator();
     }
 
     public Object[] toArray() {
@@ -261,12 +259,66 @@ public class MyArrayList<T> implements List<T> {
         return -1;
     }
 
+    class MyListIterator extends MyIterator implements ListIterator<T>{
+        public MyListIterator(int index) {
+            super();
+            this.index = index;
+        }
+
+        @Override
+        public boolean hasPrevious() {
+            return index > 0;
+        }
+
+        @Override
+        public T previous() {
+            if (!hasPrevious()) {
+                throw new NoSuchElementException();
+            }
+            return (T)array[--index];
+        }
+
+        @Override
+        public int nextIndex() {
+            return index;
+        }
+
+        @Override
+        public int previousIndex() {
+            return index - 1;
+        }
+
+        @Override
+        public void remove() {
+            if (index >= 0 || index < size) {
+                MyArrayList.this.remove(index);
+            }
+        }
+
+        @Override
+        public void set(T t) {
+            if (index >= 0 || index < size) {
+                MyArrayList.this.set(index, t);
+            }
+        }
+
+        @Override
+        public void add(T t) {
+            if (index >= 0 || index < size) {
+                MyArrayList.this.add(index, t);
+            }
+        }
+    }
+
     public ListIterator<T> listIterator() {
-        return null;
+        return new MyListIterator(0);
     }
 
     public ListIterator<T> listIterator(int index) {
-        return null;
+        if (index < 0 || index > size) {
+            throw new IndexOutOfBoundsException();
+        }
+        return new MyListIterator(index);
     }
 
     public List<T> subList(int fromIndex, int toIndex) {

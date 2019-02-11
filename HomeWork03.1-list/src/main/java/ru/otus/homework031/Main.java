@@ -6,7 +6,6 @@ import java.util.Collection;
 import java.util.List;
 
 public class Main {
-
     private static <T> MyArrayList<T> prepareList(T... t) {
         var list = new MyArrayList<T>();
         for (var e : t)
@@ -140,6 +139,13 @@ public class Main {
         list.forEach(System.out::println);
     }
 
+    private static void testListIterator() {
+
+    }
+
+    private static void testListIteratorWithIndex() {
+
+    }
 
     public static void main(String[] args) {
 //        testAdd();
@@ -154,7 +160,7 @@ public class Main {
 //        testSet();
 //        testArrayList();
 //        testAddAllCollection();
-        testRetainAll();
+//        testRetainAll();
 
     }
 }
