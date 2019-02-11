@@ -8,29 +8,16 @@ public class MyArrayList<T> implements List<T> {
     private int size = 0;
     private T[] array = (T[]) new Object[capacity];
 
-//    MyArrayList(T... args) {
-//        array = args;
-//        size = args.length;
-//        capacity = args.length;
-//        System.out.println("Construct array. Type name:" + array.getClass().getTypeName());
-//        System.out.println("Constructed array:" + Arrays.toString(array));
-//    }
-
-    public int size() { // +
+    public int size() {
         return size;
     }
 
-    public boolean isEmpty() { // +
+    public boolean isEmpty() {
         return size == 0;
     }
 
-    public boolean contains(Object o) { // +
-        for (int i = 0; i < size; i++) {
-            if (array[i].equals(o)) {
-                return true;
-            }
-        }
-        return false;
+    public boolean contains(Object o) {
+        return indexOf(o) >= 0;
     }
 
     public class MyArrayListIterator<T> implements Iterator<T> {
@@ -109,18 +96,51 @@ public class MyArrayList<T> implements List<T> {
     }
 
     public boolean containsAll(Collection<?> c) {
-        return false;
+        int counter = 0;
+        for (var element : c) {
+            if (indexOf(element) >= 0) {
+                counter++;
+            }
+        }
+        return counter == c.size();
     }
 
     public boolean addAll(Collection<? extends T> c) {
-        return false;
+        return addAll(size, c);
     }
 
     public boolean addAll(int index, Collection<? extends T> c) {
-        return false;
+        if (index < 0 || index > size) {
+            throw new IndexOutOfBoundsException();
+        }
+        if (c.contains(null)) {
+            throw new NullPointerException();
+        }
+        if (c.isEmpty()) {
+            return false;
+        }
+
+        if (size + c.size() > capacity) {
+            capacity = size + c.size();
+            array = Arrays.copyOf(array, capacity);
+        }
+
+        final var inputArray = c.toArray();
+        if (index == size) {
+            System.arraycopy(inputArray, 0, array, index, inputArray.length);
+        } else {
+            final var tmpArray = Arrays.copyOfRange(array, index, size);
+            System.arraycopy(inputArray, 0, array, index, inputArray.length);
+            System.arraycopy(tmpArray, 0, array, index + c.size(), tmpArray.length);
+        }
+        size += c.size();
+        return true;
     }
 
     public boolean removeAll(Collection<?> c) {
+        if (c.contains(null) || c == null) {
+            throw new NullPointerException();
+        }
         final var iterator = c.iterator();
         boolean result = false;
         while (iterator.hasNext()) {
@@ -133,7 +153,21 @@ public class MyArrayList<T> implements List<T> {
     }
 
     public boolean retainAll(Collection<?> c) {
-        return false;
+        if (c.contains(null) || c == null) {
+            throw new NullPointerException();
+        }
+
+        int newSize = 0;
+        for (int i = 0; i < size; i++) {
+            if (c.contains(array[i])) {
+                for (int j = i; j > newSize; j--) {
+                    swap(j, j - 1);
+                }
+                newSize++;
+            }
+        }
+        size = newSize;
+        return newSize > 0;
     }
 
     public void clear() {
@@ -143,14 +177,20 @@ public class MyArrayList<T> implements List<T> {
     }
 
     public T get(int index) {
-        if (index >= size || index < 0) {
-            throw new ArrayIndexOutOfBoundsException();
-        }
+        Objects.checkIndex(index, size);
         return array[index];
     }
 
     public T set(int index, T element) {
-        return null;
+        if (element == null) {
+            throw new NullPointerException();
+        }
+        if (index < 0 || index >= size) {
+            throw new IndexOutOfBoundsException();
+        }
+        var objectToreturn = array[index];
+        array[index] = element;
+        return objectToreturn;
     }
 
     public void add(int index, T element) { // +
@@ -198,9 +238,7 @@ public class MyArrayList<T> implements List<T> {
     }
 
     public int indexOf(Object o) {
-        if (o == null) {
-            throw new NullPointerException();
-        }
+        Objects.requireNonNull(o);
 
         for (int i = 0; i < size; i++) {
             if (array[i].equals(o)) {
@@ -232,9 +270,16 @@ public class MyArrayList<T> implements List<T> {
     }
 
     public List<T> subList(int fromIndex, int toIndex) {
+        if (fromIndex < 0 || toIndex > size || fromIndex > toIndex) {
+            throw new IndexOutOfBoundsException();
+        }
+
         return null;
     }
 
+    public void print() {
+        System.out.println(Arrays.toString(array));
+    }
 
     private void swap(int i, int j) {
         if (i >= capacity || j >= capacity || i == j) {

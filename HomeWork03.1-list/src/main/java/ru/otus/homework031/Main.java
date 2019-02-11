@@ -7,7 +7,7 @@ import java.util.List;
 
 public class Main {
 
-    private static <T> List<T> prepareList(T... t) {
+    private static <T> MyArrayList<T> prepareList(T... t) {
         var list = new MyArrayList<T>();
         for (var e : t)
             list.add(e);
@@ -109,9 +109,39 @@ public class Main {
         System.out.println("IndexOf(6)" + list.lastIndexOf(6));
     }
 
+    private static void testSet() {
+        final var list = prepareList(1, 2, 3, 4, 5);
+        list.set(4, 42);
+        System.out.println(Arrays.toString(list.toArray()));
+    }
+
+    private static void testArrayList() {
+        final var list = new ArrayList<>(Arrays.asList(1, 2, 3, 4, 5));
+        System.out.println("ArrayList contains 1, 1, 1: " + list.containsAll(Arrays.asList(1, 1, 1)));
+    }
+
+    private static void testAddAllCollection() {
+        var list = prepareList(1, 2, 3, 4, 5);
+        Collection<Integer> c = Arrays.asList(6, 7, 8);
+//        list.addAll(0, c);
+//        list.addAll(c.size(), c);
+//        list.addAll(2, c);
+        list.addAll(c);
+        list.print();
+    }
+
+    private static void testRetainAll() {
+        var list = prepareList(1, 2, 4, 4, 4, 5, 3, 1, 1, 1);
+//        var list = new ArrayList<>(Arrays.asList(1, 2, 4, 4, 4, 5, 3, 1, 1, 1));
+        Collection<Integer> c = Arrays.asList(4, 2, 1);
+        list.retainAll(c);
+
+        list.print();
+        list.forEach(System.out::println);
+    }
+
 
     public static void main(String[] args) {
-
 //        testAdd();
 //        testAddIndex();
 //        testRemoveObject();
@@ -120,34 +150,11 @@ public class Main {
 //        testToArray();
 //        testGenericToArray();
 //        testIndexOfObject();
-        testLastIndexOfObject();
+//        testLastIndexOfObject();
+//        testSet();
+//        testArrayList();
+//        testAddAllCollection();
+        testRetainAll();
 
-
-//        final var list1 = prepareList(1, 2, 3, 4, 5, 6, null);
-//        System.out.println("List size: " + list1.size());
-//        System.out.println("List contains null: " + list1.contains(null));
-//        System.out.println("List contains 3: " + list1.contains(3));
-//        System.out.println("List contains 3L: " + list1.contains(3L));
-
-//        var list = new ArrayList<Integer>();
-
-//        Long i = Long.valueOf(10L);
-//        System.out.println("Equals: " + i.equals(null));
-
-//        final int size = 20;
-//        List<Integer> list = new MyArrayList<Integer>();
-//        for (int i = 0; i < size; i++) {
-//            list.add(i);
-//        }
-//
-//        list.remove(7);
-//        list.remove(0);
-//        list.remove(20);
-//
-//        list.remove(Integer.valueOf(2));
-//
-//        for (int i = 0; i < list.size(); i++) {
-//            System.out.println(list.get(i));
-//        }
     }
 }
