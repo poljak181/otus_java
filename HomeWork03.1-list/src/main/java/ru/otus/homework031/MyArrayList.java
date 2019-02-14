@@ -22,6 +22,7 @@ public class MyArrayList<T> implements List<T> {
 
     public class MyIterator implements Iterator<T> {
         int index = 0;
+        boolean legalState = false;
 
         public MyIterator() {
         }
@@ -36,6 +37,7 @@ public class MyArrayList<T> implements List<T> {
             if (!hasNext()) {
                 throw new NoSuchElementException();
             }
+            legalState = true;
             return (T)MyArrayList.this.array[index++];
         }
     }
@@ -275,7 +277,7 @@ public class MyArrayList<T> implements List<T> {
             if (!hasPrevious()) {
                 throw new NoSuchElementException();
             }
-            return (T)array[--index];
+            return array[--index];
         }
 
         @Override
@@ -285,18 +287,27 @@ public class MyArrayList<T> implements List<T> {
 
         @Override
         public int previousIndex() {
+            legalState = true;
             return index - 1;
         }
 
         @Override
         public void remove() {
+            if (!legalState) {
+                throw new IllegalStateException();
+            }
+
             if (index >= 0 || index < size) {
+                legalState = false;
                 MyArrayList.this.remove(index);
             }
         }
 
         @Override
         public void set(T t) {
+            if (!legalState) {
+                throw new IllegalStateException();
+            }
             if (index >= 0 || index < size) {
                 MyArrayList.this.set(index, t);
             }
@@ -306,6 +317,8 @@ public class MyArrayList<T> implements List<T> {
         public void add(T t) {
             if (index >= 0 || index < size) {
                 MyArrayList.this.add(index, t);
+                legalState = false;
+                ++index;
             }
         }
     }
