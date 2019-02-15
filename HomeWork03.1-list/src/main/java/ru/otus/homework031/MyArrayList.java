@@ -22,7 +22,7 @@ public class MyArrayList<T> implements List<T> {
 
     public class MyIterator implements Iterator<T> {
         int index = 0;
-        boolean legalState = false;
+        int lastIndex = -1;
 
         public MyIterator() {
         }
@@ -37,7 +37,7 @@ public class MyArrayList<T> implements List<T> {
             if (!hasNext()) {
                 throw new NoSuchElementException();
             }
-            legalState = true;
+            lastIndex = index;
             return (T)MyArrayList.this.array[index++];
         }
     }
@@ -277,6 +277,7 @@ public class MyArrayList<T> implements List<T> {
             if (!hasPrevious()) {
                 throw new NoSuchElementException();
             }
+            lastIndex = index;
             return array[--index];
         }
 
@@ -287,29 +288,28 @@ public class MyArrayList<T> implements List<T> {
 
         @Override
         public int previousIndex() {
-            legalState = true;
             return index - 1;
         }
 
         @Override
         public void remove() {
-            if (!legalState) {
+            if (lastIndex == -1) {
                 throw new IllegalStateException();
             }
 
             if (index >= 0 || index < size) {
-                legalState = false;
-                MyArrayList.this.remove(index);
+                MyArrayList.this.remove(lastIndex);
+                lastIndex = -1;
             }
         }
 
         @Override
         public void set(T t) {
-            if (!legalState) {
+            if (lastIndex == -1) {
                 throw new IllegalStateException();
             }
-            if (index >= 0 || index < size) {
-                MyArrayList.this.set(index, t);
+            if (lastIndex >= 0 || lastIndex < size) {
+                MyArrayList.this.set(lastIndex, t);
             }
         }
 
@@ -317,7 +317,7 @@ public class MyArrayList<T> implements List<T> {
         public void add(T t) {
             if (index >= 0 || index < size) {
                 MyArrayList.this.add(index, t);
-                legalState = false;
+                lastIndex = -1;
                 ++index;
             }
         }
@@ -343,7 +343,8 @@ public class MyArrayList<T> implements List<T> {
     }
 
     public void print() {
-        System.out.println(Arrays.toString(array));
+        System.out.println(Arrays.toString(array) + ", size:" + size);
+
     }
 
     private void swap(int i, int j) {

@@ -190,13 +190,14 @@ class MyArrayListTest {
             }
         });
         iter.next();
-        iter.set(777);
-        assertEquals(0, list.get(0));
+        iter.set(777); // 0 = 777
+        assertEquals(777, list.get(0));
         iter.set(111);
-        assertEquals(0, list.get(0));
-
+        assertEquals(111, list.get(0));
         iter.add(12);
         assertEquals(12, list.get(1));
+        assertEquals(12, list.get(iter.previousIndex()));
+        assertEquals(1, list.get(iter.nextIndex()));
 
         assertThrows(IllegalStateException.class, new Executable() {
             @Override
@@ -204,8 +205,8 @@ class MyArrayListTest {
                 iter.set(100);
             }
         });
-
         assertEquals(1, iter.next());
+        iter.remove();
     }
 
     @Test
