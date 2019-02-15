@@ -210,10 +210,64 @@ class MyArrayListTest {
     }
 
     @Test
-    void listIterator1() {
+    void listIteratorAddCheckNext() {
+        var iter = list.listIterator();
+        iter.next(); // between 0 and 1
+        iter.add(777);
+        assertEquals(1, iter.next()); //  subsequent call to previous would return the new element.
+        assertEquals(2, iter.next()); //  subsequent call to previous would return the new element.
+    }
+
+    @Test
+    void listIteratorRemoveBegin() {
+        var iter = list.listIterator();
+
+        assertThrows(IllegalStateException.class, new Executable() {
+            @Override
+            public void execute() throws Throwable {
+                iter.remove();
+            }
+        });
+        iter.next();
+        iter.remove();
+        assertEquals(1, iter.next());
+        iter.add(17);
+
+        assertThrows(IllegalStateException.class, new Executable() {
+            @Override
+            public void execute() throws Throwable {
+                iter.remove();
+            }
+        });
+    }
+
+
+    @Test
+    void listIteratorWithIndex() {
+        var iter1 = list.listIterator(0);
+        assertEquals(0, iter1.next());
+
+        assertThrows(IndexOutOfBoundsException.class, new Executable() {
+            @Override
+            public void execute() throws Throwable {
+                var iter2 = list.listIterator(11);
+            }
+        });
+
+        var iter3 = list.listIterator(5);
+        assertEquals(4, iter3.previousIndex());
+        assertEquals(5, iter3.nextIndex());
+        assertEquals(5, iter3.next());
+
     }
 
     @Test
     void subList() {
+    }
+
+    @Test
+    void subListSizeTest() {
+        final var l = list.subList(0, 3);
+        assertEquals(3, l.size());
     }
 }
