@@ -106,6 +106,8 @@ class MyArrayListTest {
 
     @Test
     void indexOf() {
+        assertEquals(0, list.indexOf(0));
+        assertEquals(3, list.indexOf(3));
     }
 
     @Test
@@ -266,8 +268,34 @@ class MyArrayListTest {
     }
 
     @Test
-    void subListSizeTest() {
+    void testSubListSize() {
         final var l = list.subList(0, 3);
         assertEquals(3, l.size());
     }
+
+    @Test
+    void testSubListIsEmpty() {
+        final var sublist1 = list.subList(0, 1);
+        assertEquals(false, sublist1.isEmpty());
+
+        final var sublist2 = list.subList(1, 1);
+        assertEquals(true, sublist2.isEmpty());
+    }
+
+    @Test
+    void testSubListIndexOf() {
+        final var subList = list.subList(3, 8);
+        assertEquals(1, subList.indexOf(4));
+        assertEquals(-1, subList.indexOf(444));
+        assertEquals(4, subList.indexOf(7));
+    }
+
+    @Test
+    void testSubListContains() {
+        final var subList = list.subList(7, 9);
+        assertEquals(true, subList.contains(7));
+        assertEquals(true, subList.contains(8));
+        assertEquals(false, subList.contains(9));
+    }
+
 }

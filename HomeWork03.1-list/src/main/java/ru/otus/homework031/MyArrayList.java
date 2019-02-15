@@ -237,15 +237,19 @@ public class MyArrayList<T> implements List<T> {
         return removedObject;
     }
 
-    public int indexOf(Object o) {
+    private int privateIndexOf(Object o, int startIndex, int size) {
         Objects.requireNonNull(o);
 
-        for (int i = 0; i < size; i++) {
+        for (int i = startIndex; i < startIndex + size; i++) {
             if (array[i].equals(o)) {
                 return i;
             }
         }
         return -1;
+    }
+
+    public int indexOf(Object o) {
+        return privateIndexOf(o, 0, size);
     }
 
     public int lastIndexOf(Object o) {
@@ -338,20 +342,20 @@ public class MyArrayList<T> implements List<T> {
     class SubList implements List<T> {
         private final MyArrayList<T> root;
         private final SubList parent;
-        private final int sourceOffset;
+        private final int offset;
         private int size;
 
         public SubList(MyArrayList<T> root, int startIndex, int endIndex) {
             this.root = root;
             this.parent = null;
-            this.sourceOffset = startIndex;
+            this.offset = startIndex;
             this.size = endIndex - startIndex;
         }
 
         public SubList(SubList parent, int startIndex, int endIndex) {
             this.root = parent.root;
             this.parent = parent;
-            this.sourceOffset = parent.sourceOffset + startIndex;
+            this.offset = parent.offset + startIndex;
             this.size = endIndex - startIndex;
         }
 
@@ -362,12 +366,12 @@ public class MyArrayList<T> implements List<T> {
 
         @Override
         public boolean isEmpty() {
-            return false;
+            return size == 0;
         }
 
         @Override
         public boolean contains(Object o) {
-            return false;
+            return indexOf(o) != -1;
         }
 
         @Override
@@ -447,7 +451,8 @@ public class MyArrayList<T> implements List<T> {
 
         @Override
         public int indexOf(Object o) {
-            return 0;
+            final var result = privateIndexOf(o, offset, size);
+            return result == -1 ? -1 : result - offset;
         }
 
         @Override
