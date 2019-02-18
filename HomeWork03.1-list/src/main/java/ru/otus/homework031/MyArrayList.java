@@ -178,21 +178,31 @@ public class MyArrayList<T> implements List<T> {
         return result;
     }
 
+    private void updateSize(int addToSize) {
+        MyArrayList curList = this;
+        do {
+            curList.size += addToSize;
+            curList = curList.parent;
+
+        } while (curList != null);
+    }
+
     public boolean retainAll(Collection<?> c) {
         if (c.contains(null) || c == null) {
             throw new NullPointerException();
         }
 
         int newSize = 0;
-        for (int i = 0; i < size; i++) {
+        for (int i = offset; i < offset + size; i++) {
             if (c.contains(array[i])) {
-                for (int j = i; j > newSize; j--) {
+                for (int j = i; j > offset + newSize; j--) {
                     swap(j, j - 1);
                 }
                 newSize++;
             }
         }
-        size = newSize;
+        updateSize(newSize - size);
+        System.out.println(Arrays.toString(toArray()));
         return newSize > 0;
     }
 
@@ -204,7 +214,7 @@ public class MyArrayList<T> implements List<T> {
 
     public T get(int index) {
         Objects.checkIndex(index, size);
-        return array[index];
+        return array[offset + index];
     }
 
     public T set(int index, T element) {
@@ -214,8 +224,8 @@ public class MyArrayList<T> implements List<T> {
         if (index < 0 || index >= size) {
             throw new IndexOutOfBoundsException();
         }
-        var objectToreturn = array[index];
-        array[index] = element;
+        var objectToreturn = array[offset + index];
+        array[offset + index] = element;
         return objectToreturn;
     }
 
@@ -290,9 +300,9 @@ public class MyArrayList<T> implements List<T> {
             throw new NullPointerException();
         }
 
-        for (int i = size - 1; i >= 0; i--) {
+        for (int i = offset + size - 1; i >= 0; i--) {
             if (array[i].equals(o)) {
-                return i;
+                return i - offset;
             }
         }
         return -1;

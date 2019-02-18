@@ -6,6 +6,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.function.Executable;
 
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.NoSuchElementException;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -228,6 +229,10 @@ class MyArrayListTest {
         sublist1.remove(2);
         assertArrayEquals(new Integer[]{5, 6}, sublist1.toArray());
         assertArrayEquals(new Integer[]{0, 1, 2, 3, 5, 6, 8, 9}, list.toArray());
+        final var sublist2 = sublist1.subList(0, 1);
+        sublist2.remove(0);
+        assertArrayEquals(new Integer[]{}, sublist2.toArray());
+        assertArrayEquals(new Integer[]{0, 1, 2, 3, 6, 8, 9}, list.toArray());
     }
 
 
@@ -248,7 +253,18 @@ class MyArrayListTest {
     }
 
     @Test
-    void retainAll() {
+    void testRetainAll() {
+        Collection<Integer> c = Arrays.asList(4, 2, 1);
+        list.retainAll(c);
+        assertArrayEquals(new Integer[] {1, 2, 4}, list.toArray());
+    }
+
+    @Test
+    void testRetainAllSubList() {
+        final var sublist1 = list.subList(2, 8);
+        Collection<Integer> c = Arrays.asList(4, 2, 1);
+        sublist1.retainAll(c);
+        assertArrayEquals(new Integer[] {2, 4}, sublist1.toArray());
     }
 
     @Test
@@ -256,11 +272,30 @@ class MyArrayListTest {
     }
 
     @Test
-    void get() {
+    void testGet() {
+        assertEquals(4, list.get(4));
+        assertEquals(9, list.get(9));
     }
 
     @Test
-    void set() {
+    void testGetSubList() {
+        final var sublist1 = list.subList(2, 8);
+        assertEquals(2, sublist1.get(0));
+        assertEquals(7, sublist1.get(5));
+    }
+
+    @Test
+    void testSet() {
+        list.set(5, 555);
+        assertEquals(555, list.get(5));
+    }
+
+    @Test
+    void testSetSubList() {
+        final var sublist1 = list.subList(2, 8);
+        sublist1.set(5, 777);
+        assertEquals(777, sublist1.get(5));
+        assertEquals(777, list.get(7));
     }
 
     @Test
@@ -272,7 +307,16 @@ class MyArrayListTest {
     }
 
     @Test
-    void lastIndexOf() {
+    void testLastIndexOf() {
+        assertEquals(7, list.lastIndexOf(7));
+    }
+
+    @Test
+    void testLastIndexOfSubList() {
+        final var sublist1 = list.subList(2, 8);
+        sublist1.add(1, 3);
+        assertEquals(2, sublist1.lastIndexOf(3));
+        assertEquals(4, list.lastIndexOf(3));
     }
 
     @Test
