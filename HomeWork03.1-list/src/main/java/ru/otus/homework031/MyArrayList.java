@@ -5,8 +5,23 @@ import java.util.*;
 public class MyArrayList<T> implements List<T> {
     private static int INITIAL_CAPACITY = 5;
     private int capacity = INITIAL_CAPACITY;
+    private int offset = 0;
     private int size = 0;
-    private T[] array = (T[]) new Object[capacity];
+    private T[] array = null;
+    private final MyArrayList<T> parent;
+
+    public MyArrayList() {
+        this.parent = null;
+        this.array = (T[]) new Object[capacity];
+    }
+
+    private MyArrayList(MyArrayList<T> parent, int startIndex, int endIndex) {
+        this.offset = startIndex;
+        this.size = endIndex - startIndex;
+        this.parent = parent;
+        this.array = parent.array;
+        this.capacity = parent.capacity;
+    }
 
     public int size() {
         return size;
@@ -16,20 +31,31 @@ public class MyArrayList<T> implements List<T> {
         return size == 0;
     }
 
+    public int indexOf(Object o) {
+        Objects.requireNonNull(o);
+
+        for (int i = offset; i < offset + size; i++) {
+            if (array[i].equals(o)) {
+                return i - offset;
+            }
+        }
+        return -1;
+    }
+
     public boolean contains(Object o) {
         return indexOf(o) >= 0;
     }
 
     public class MyIterator implements Iterator<T> {
-        int index = 0;
-        int lastIndex = -1;
+        int curIndex = offset;
+        int lastReturnedIndex = -1;
 
         public MyIterator() {
         }
 
         @Override
         public boolean hasNext() {
-            return index < size;
+            return curIndex < offset + size; // max index
         }
 
         @Override
@@ -37,8 +63,8 @@ public class MyArrayList<T> implements List<T> {
             if (!hasNext()) {
                 throw new NoSuchElementException();
             }
-            lastIndex = index;
-            return (T)MyArrayList.this.array[index++];
+            lastReturnedIndex = curIndex;
+            return MyArrayList.this.array[curIndex++];
         }
     }
 
@@ -47,7 +73,7 @@ public class MyArrayList<T> implements List<T> {
     }
 
     public Object[] toArray() {
-        return Arrays.copyOf(array, size);
+        return Arrays.copyOfRange(array, offset, offset + size);
     }
 
     public <T1> T1[] toArray(T1[] a) {
@@ -56,9 +82,9 @@ public class MyArrayList<T> implements List<T> {
         }
 
         if (a.length < size) {
-            return (T1[]) Arrays.copyOf(array, size, a.getClass());
+            return (T1[]) Arrays.copyOfRange(array, offset, offset + size, a.getClass());
         } else {
-            System.arraycopy(array, 0, a, 0, size);
+            System.arraycopy(array, offset, a, 0, size);
             for (int i = size; i < a.length; i++) {
                 a[i] = null;
             }
@@ -66,7 +92,7 @@ public class MyArrayList<T> implements List<T> {
         }
     }
 
-    public boolean add(T t) { // +
+    public boolean add(T t) {
         try {
             add(size, t);
             return true;
@@ -193,7 +219,7 @@ public class MyArrayList<T> implements List<T> {
         return objectToreturn;
     }
 
-    public void add(int index, T element) { // +
+    public void add(int index, T element) {
         if (index > size || index < 0) {
             throw new IndexOutOfBoundsException();
         }
@@ -202,23 +228,38 @@ public class MyArrayList<T> implements List<T> {
             throw new NullPointerException();
         }
 
-        if (size >= capacity) {
-            capacity *= 2;
-            array = Arrays.copyOf(array, capacity);
+        MyArrayList root = this;
+        while (root.parent != null) {
+            ++root.size;
+            root = root.parent;
         }
 
-        if (index == size) {
-            array[size] = element;
+        if (root.size >= root.capacity) {
+            int newCapacity = root.capacity * 2;
+            var newArray = Arrays.copyOf(array, newCapacity);
+
+            // need update ref to array and capacity through all hierarchy
+            MyArrayList curList = this;
+            do {
+                curList.capacity = newCapacity;
+                curList.array = newArray;
+                curList = curList.parent;
+
+            } while (curList != null);
+        }
+
+        final int rootIndex = offset + index;
+        if (rootIndex == root.size) {
+            array[root.size] = element;
         } else {
-            for (int i = size; i > index; i--) {
-                swap(i, i - 1);
+            for (int i = root.size; i > rootIndex; i--) {
+                swap(root.capacity, i, i - 1);
             }
-            array[index] = element;
+            array[rootIndex] = element;
         }
 
-        ++size;
-
-        System.out.println(Arrays.toString(array));
+        ++root.size;
+        System.out.println(Arrays.toString(array) + ", root size: " + root.size);
     }
 
     public T remove(int index) {
@@ -226,30 +267,22 @@ public class MyArrayList<T> implements List<T> {
             throw new ArrayIndexOutOfBoundsException();
         }
 
-        for (int i = index; i < size - 1; i++) {
+        MyArrayList root = this;
+        while (root.parent != null) {
+            --root.size;
+            root = root.parent;
+        }
+
+        final int rootIndex = offset + index;
+        for (int i = rootIndex; i < root.size - 1; i++) {
             swap(i, i + 1);
         }
 
-        T removedObject = array[size - 1];
-        array[size - 1] = null;
-        --size;
+        T removedObject = array[root.size - 1];
+        array[root.size - 1] = null;
+        --root.size;
         System.out.println(Arrays.toString(array));
         return removedObject;
-    }
-
-    private int privateIndexOf(Object o, int startIndex, int size) {
-        Objects.requireNonNull(o);
-
-        for (int i = startIndex; i < startIndex + size; i++) {
-            if (array[i].equals(o)) {
-                return i;
-            }
-        }
-        return -1;
-    }
-
-    public int indexOf(Object o) {
-        return privateIndexOf(o, 0, size);
     }
 
     public int lastIndexOf(Object o) {
@@ -268,12 +301,12 @@ public class MyArrayList<T> implements List<T> {
     class MyListIterator extends MyIterator implements ListIterator<T>{
         public MyListIterator(int index) {
             super();
-            this.index = index;
+            this.curIndex = index;
         }
 
         @Override
         public boolean hasPrevious() {
-            return index > 0;
+            return curIndex > 0;
         }
 
         @Override
@@ -281,49 +314,49 @@ public class MyArrayList<T> implements List<T> {
             if (!hasPrevious()) {
                 throw new NoSuchElementException();
             }
-            lastIndex = index;
-            return array[--index];
+            lastReturnedIndex = curIndex;
+            return array[--curIndex];
         }
 
         @Override
         public int nextIndex() {
-            return index;
+            return curIndex;
         }
 
         @Override
         public int previousIndex() {
-            return index - 1;
+            return curIndex - 1;
         }
 
         @Override
         public void remove() {
-            if (lastIndex == -1) {
+            if (lastReturnedIndex == -1) {
                 throw new IllegalStateException();
             }
 
-            if (index >= 0 || index < size) {
-                MyArrayList.this.remove(lastIndex);
-                index--;
-                lastIndex = -1;
+            if (curIndex >= 0 || curIndex < size) {
+                MyArrayList.this.remove(lastReturnedIndex);
+                curIndex--;
+                lastReturnedIndex = -1;
             }
         }
 
         @Override
         public void set(T t) {
-            if (lastIndex == -1) {
+            if (lastReturnedIndex == -1) {
                 throw new IllegalStateException();
             }
-            if (lastIndex >= 0 || lastIndex < size) {
-                MyArrayList.this.set(lastIndex, t);
+            if (lastReturnedIndex >= 0 || lastReturnedIndex < size) {
+                MyArrayList.this.set(lastReturnedIndex, t);
             }
         }
 
         @Override
         public void add(T t) {
-            if (index >= 0 || index < size) {
-                MyArrayList.this.add(index, t);
-                lastIndex = -1;
-                ++index;
+            if (curIndex >= 0 || curIndex < size) {
+                MyArrayList.this.add(curIndex, t);
+                lastReturnedIndex = -1;
+                ++curIndex;
             }
         }
     }
@@ -339,150 +372,13 @@ public class MyArrayList<T> implements List<T> {
         return new MyListIterator(index);
     }
 
-    class SubList implements List<T> {
-        private final MyArrayList<T> root;
-        private final SubList parent;
-        private final int offset;
-        private int size;
-
-        public SubList(MyArrayList<T> root, int startIndex, int endIndex) {
-            this.root = root;
-            this.parent = null;
-            this.offset = startIndex;
-            this.size = endIndex - startIndex;
-        }
-
-        public SubList(SubList parent, int startIndex, int endIndex) {
-            this.root = parent.root;
-            this.parent = parent;
-            this.offset = parent.offset + startIndex;
-            this.size = endIndex - startIndex;
-        }
-
-        @Override
-        public int size() {
-            return size;
-        }
-
-        @Override
-        public boolean isEmpty() {
-            return size == 0;
-        }
-
-        @Override
-        public boolean contains(Object o) {
-            return indexOf(o) != -1;
-        }
-
-        @Override
-        public Iterator<T> iterator() {
-            return null;
-        }
-
-        @Override
-        public Object[] toArray() {
-            return new Object[0];
-        }
-
-        @Override
-        public <T1> T1[] toArray(T1[] a) {
-            return null;
-        }
-
-        @Override
-        public boolean add(T t) {
-            return false;
-        }
-
-        @Override
-        public boolean remove(Object o) {
-            return false;
-        }
-
-        @Override
-        public boolean containsAll(Collection<?> c) {
-            return false;
-        }
-
-        @Override
-        public boolean addAll(Collection<? extends T> c) {
-            return false;
-        }
-
-        @Override
-        public boolean addAll(int index, Collection<? extends T> c) {
-            return false;
-        }
-
-        @Override
-        public boolean removeAll(Collection<?> c) {
-            return false;
-        }
-
-        @Override
-        public boolean retainAll(Collection<?> c) {
-            return false;
-        }
-
-        @Override
-        public void clear() {
-
-        }
-
-        @Override
-        public T get(int index) {
-            return null;
-        }
-
-        @Override
-        public T set(int index, T element) {
-            return null;
-        }
-
-        @Override
-        public void add(int index, T element) {
-
-        }
-
-        @Override
-        public T remove(int index) {
-            return null;
-        }
-
-        @Override
-        public int indexOf(Object o) {
-            final var result = privateIndexOf(o, offset, size);
-            return result == -1 ? -1 : result - offset;
-        }
-
-        @Override
-        public int lastIndexOf(Object o) {
-            return 0;
-        }
-
-        @Override
-        public ListIterator<T> listIterator() {
-            return null;
-        }
-
-        @Override
-        public ListIterator<T> listIterator(int index) {
-            return null;
-        }
-
-        @Override
-        public List<T> subList(int fromIndex, int toIndex) {
-            return null;
-        }
-    }
-
 
     public List<T> subList(int fromIndex, int toIndex) {
         if (fromIndex < 0 || toIndex > size || fromIndex > toIndex) {
             throw new IndexOutOfBoundsException();
         }
 
-        return new SubList(this, fromIndex, toIndex);
+        return new MyArrayList<>(this, offset + fromIndex, offset + toIndex);
     }
 
     public void print() {
@@ -491,7 +387,18 @@ public class MyArrayList<T> implements List<T> {
     }
 
     private void swap(int i, int j) {
-        if (i >= capacity || j >= capacity || i == j) {
+        if (i >= capacity|| j >= capacity || i == j) {
+            System.out.println("Can't swap elements");
+            return;
+        }
+
+        T temp = array[i];
+        array[i] = array[j];
+        array[j] = temp;
+    }
+
+    private void swap(int rootCapacity, int i, int j) {
+        if (i >= rootCapacity || j >= rootCapacity || i == j) {
             System.out.println("Can't swap elements");
             return;
         }

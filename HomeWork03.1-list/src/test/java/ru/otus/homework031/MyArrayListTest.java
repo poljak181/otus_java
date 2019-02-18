@@ -5,19 +5,13 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.function.Executable;
 
+import java.util.Arrays;
 import java.util.NoSuchElementException;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 class MyArrayListTest {
     private MyArrayList<Integer> list = null;
-
-    private static <T> MyArrayList<T> prepareList(T... t) {
-        var list = new MyArrayList<T>();
-        for (var e : t)
-            list.add(e);
-        return list;
-    }
 
     @BeforeEach
     void setUp() {
@@ -33,36 +27,209 @@ class MyArrayListTest {
     }
 
     @Test
-    void size() {
+    void testSize() {
+        assertEquals(10, list.size());
     }
 
     @Test
-    void isEmpty() {
+    void testSizeSubList() {
+        var sublist = list.subList(4, 8);
+        assertEquals(4, sublist.size());
     }
 
     @Test
-    void contains() {
+    void testIsEmpty() {
+        assertEquals(false, list.isEmpty());
     }
 
     @Test
-    void iterator() {
+    void testIsEmptySubList() {
+        var sublist = list.subList(3, 3);
+        assertEquals(true, sublist.isEmpty());
     }
 
     @Test
-    void toArray() {
+    void testIndexOf() {
+        assertEquals(0, list.indexOf(0));
+        assertEquals(3, list.indexOf(3));
     }
 
     @Test
-    void toArray1() {
+    void testIndexOfSubList() {
+        var sublist = list.subList(1, 5);
+        assertEquals(-1, sublist.indexOf(0));
+        assertEquals(-1, sublist.indexOf(5));
+        assertEquals(0, sublist.indexOf(1));
+        assertEquals(3, sublist.indexOf(4));
     }
 
     @Test
-    void add() {
+    void testContains() {
+        assertEquals(true, list.contains(7));
+        assertEquals(false, list.contains(11));
+    }
+
+    @Test
+    void testContainsSubList() {
+        final var sublist = list.subList(0, 5);
+        assertEquals(true, sublist.contains(0));
+        assertEquals(false, sublist.contains(5));
+    }
+
+    @Test
+    void testIteratorHasNext() {
+        final var iter = list.iterator();
+        assertEquals(true, iter.hasNext());
+        final var emptyList = new MyArrayList();
+        assertEquals(false, emptyList.iterator().hasNext());
+    }
+
+    @Test
+    void testIteratorHasNextSubList() {
+        final var sublist = list.subList(5, 9);
+        assertEquals(true, sublist.iterator().hasNext());
+        final var sublist2 = list.subList(1, 1);
+        assertEquals(false, sublist2.iterator().hasNext() );
+    }
+    @Test
+
+    void testIteratorNext() {
+        final var iter = list.iterator();
+        for (int i = 0; i < 3; i++) {
+            iter.next();
+        }
+        assertEquals(3, iter.next());
+        while (iter.hasNext()) {
+            iter.next();
+        }
+        assertThrows(NoSuchElementException.class, new Executable() {
+            @Override
+            public void execute() throws Throwable {
+                iter.next();
+            }
+        });
+    }
+
+    @Test
+    void testIteratorNextSubList() {
+        final var sublist = list.subList(9, 10);
+        final var iter = sublist.iterator();
+        assertEquals(9, iter.next());
+        assertThrows(NoSuchElementException.class, new Executable() {
+            @Override
+            public void execute() throws Throwable {
+                iter.next();
+            }
+        });
+    }
+
+    @Test
+    void testToArray() {
+        assertArrayEquals(new Integer[]{0, 1, 2, 3, 4, 5, 6, 7, 8, 9}, list.toArray());
+    }
+
+    @Test
+    void testToArraySubList() {
+        final var sublist = list.subList(1, 5);
+        assertArrayEquals(new Integer[]{1, 2, 3, 4}, sublist.toArray());
+    }
+
+    @Test
+    void testToArray1() {
+        final var arr1 = new Integer[]{1, 2, 3};
+        var arr1result = list.toArray(arr1);
+        assertArrayEquals(new Integer[]{0, 1, 2, 3, 4, 5, 6, 7, 8, 9}, arr1result);
+
+        final var arr2 = new Integer[]{1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13};
+        var arr2result = list.toArray(arr2);
+        assertArrayEquals(new Integer[]{0, 1, 2, 3, 4, 5, 6, 7, 8, 9, null, null, null}, arr2result);
+
+        final var arr3 = new Integer[]{1, 1, 2, 3, 4, 5, 6, 7, 8, 8};
+        var arr3result = list.toArray(arr3);
+        assertArrayEquals(new Integer[]{0, 1, 2, 3, 4, 5, 6, 7, 8, 9}, arr3result);
+    }
+
+    @Test
+    void testToArraySubList1() {
+        final var sublist1 = list.subList(0, 6);
+        final var sublist2 = sublist1.subList(2, 5);
+
+        final var arr1 = new Integer[]{1, 2, 3};
+        assertArrayEquals(new Integer[]{2, 3, 4}, sublist2.toArray(arr1));
+
+        final var arr2 = new Integer[]{0, 0, 0, 1, 2, 3};
+        assertArrayEquals(new Integer[]{2, 3, 4, null, null, null}, sublist2.toArray(arr2));
+    }
+
+    @Test
+    void testAdd() {
+        list.add(777);
+        assertArrayEquals(new Integer[]{0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 777}, list.toArray());
+
+        list.add(0, 17);
+        assertArrayEquals(new Integer[]{17, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 777}, list.toArray());
+
+        list.add(6, 27);
+        assertArrayEquals(new Integer[]{17, 0, 1, 2, 3, 4, 27, 5, 6, 7, 8, 9, 777}, list.toArray());
+    }
+
+    @Test
+    void testAddSubList() {
+        final var sublist1 = list.subList(3, 8); // 3, 4, 5, 6, 7
+        sublist1.add(888);
+        System.out.println("list: " + Arrays.toString(list.toArray()) + ", size: " + list.size());
+        assertArrayEquals(new Integer[]{0, 1, 2, 3, 4, 5, 6, 7, 888, 8, 9}, list.toArray());
+        assertArrayEquals(new Integer[]{3, 4, 5, 6, 7, 888}, sublist1.toArray());
+
+        final var sublist2 = sublist1.subList(2, 6); // 5, 6, 7, 888
+        sublist2.add(666);
+
+        assertArrayEquals(new Integer[]{0, 1, 2, 3, 4, 5, 6, 7, 888, 666, 8, 9}, list.toArray());
+        assertArrayEquals(new Integer[]{3, 4, 5, 6, 7, 888, 666}, sublist1.toArray());
+        assertArrayEquals(new Integer[]{5, 6, 7, 888, 666}, sublist2.toArray());
+    }
+
+    @Test
+    void testAddIndex() {
+        list.add(7, 15);
+        assertArrayEquals(new Integer[]{0, 1, 2, 3, 4, 5, 6, 15, 7, 8, 9}, list.toArray());
+        list.add(0, 111);
+        assertArrayEquals(new Integer[]{111, 0, 1, 2, 3, 4, 5, 6, 15, 7, 8, 9}, list.toArray());
+    }
+
+    @Test
+    void testAddIndexSubList() {
+        final var sublist1 = list.subList(0, 4); // 0, 1, 2, 3
+        sublist1.add(0, 333);
+
+        assertArrayEquals(new Integer[]{333, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9}, list.toArray());
+        assertArrayEquals(new Integer[]{333, 0, 1, 2, 3}, sublist1.toArray());
+
+        final var sublist2 = sublist1.subList(2, 5); // 1, 2, 3
+        sublist2.add(1, 42);
+
+        assertArrayEquals(new Integer[]{333, 0, 1, 42, 2, 3, 4, 5, 6, 7, 8, 9}, list.toArray());
+        assertArrayEquals(new Integer[]{333, 0, 1, 42, 2, 3}, sublist1.toArray());
+        assertArrayEquals(new Integer[]{1, 42, 2, 3}, sublist2.toArray());
     }
 
     @Test
     void remove() {
+        list.remove(0);
+        assertArrayEquals(new Integer[]{1, 2, 3, 4, 5, 6, 7, 8, 9}, list.toArray());
+        list.remove(8);
+        assertArrayEquals(new Integer[]{1, 2, 3, 4, 5, 6, 7, 8}, list.toArray());
     }
+
+    @Test
+    void removeSubList() {
+        final var sublist1 = list.subList(4, 8); // 4, 5, 6, 7
+        sublist1.remove(0);
+        sublist1.remove(2);
+        assertArrayEquals(new Integer[]{5, 6}, sublist1.toArray());
+        assertArrayEquals(new Integer[]{0, 1, 2, 3, 5, 6, 8, 9}, list.toArray());
+    }
+
 
     @Test
     void containsAll() {
@@ -102,12 +269,6 @@ class MyArrayListTest {
 
     @Test
     void remove1() {
-    }
-
-    @Test
-    void indexOf() {
-        assertEquals(0, list.indexOf(0));
-        assertEquals(3, list.indexOf(3));
     }
 
     @Test
