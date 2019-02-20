@@ -7,7 +7,7 @@ public class MyArrayList<T> implements List<T> {
     private int capacity = INITIAL_CAPACITY;
     private int offset = 0;
     private int size = 0;
-    private T[] array = null;
+    private T[] array;
     private final MyArrayList<T> parent;
 
     public MyArrayList() {
@@ -121,7 +121,6 @@ public class MyArrayList<T> implements List<T> {
         T removedObject = array[root.size - 1];
         array[root.size - 1] = null;
         --root.size;
-//        System.out.println(Arrays.toString(array));
         return removedObject;
     }
 
@@ -285,7 +284,6 @@ public class MyArrayList<T> implements List<T> {
         }
 
         ++root.size;
-//        System.out.println(Arrays.toString(array) + ", root size: " + root.size);
     }
 
     public int lastIndexOf(Object o) {
@@ -376,17 +374,12 @@ public class MyArrayList<T> implements List<T> {
         return new MyListIterator(index);
     }
 
-
     public List<T> subList(int fromIndex, int toIndex) {
         if (fromIndex < 0 || toIndex > size || fromIndex > toIndex) {
             throw new IndexOutOfBoundsException();
         }
 
         return new MyArrayList<>(this, offset + fromIndex, offset + toIndex);
-    }
-
-    public void print() {
-        System.out.println(Arrays.toString(array) + ", size:" + size);
     }
 
     private void swap(int i, int j) {
