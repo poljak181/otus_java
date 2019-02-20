@@ -105,20 +105,13 @@ public class MyArrayList<T> implements List<T> {
         if (o == null) {
             throw new NullPointerException();
         }
-
-        for (int i = 0; i < size; i++) {
-            if (array[i].equals(o)) {
-                while (i < size - 1) {
-                    swap(i, i + 1);
-                    ++i;
-                }
-                array[size - 1] = null;
-                --size;
-                System.out.println(Arrays.toString(array));
-                return true;
-            }
+        final var indexToRemove = indexOf(o);
+        if (indexToRemove != -1) {
+            remove(indexToRemove);
+            return false;
+        } else {
+            return false;
         }
-        return false;
     }
 
     public boolean containsAll(Collection<?> c) {
@@ -146,20 +139,27 @@ public class MyArrayList<T> implements List<T> {
             return false;
         }
 
-        if (size + c.size() > capacity) {
-            capacity = size + c.size();
-            array = Arrays.copyOf(array, capacity);
+        int i = 0;
+        for (var elem : c) {
+            add(index + i, elem);
+            ++i;
         }
 
-        final var inputArray = c.toArray();
-        if (index == size) {
-            System.arraycopy(inputArray, 0, array, index, inputArray.length);
-        } else {
-            final var tmpArray = Arrays.copyOfRange(array, index, size);
-            System.arraycopy(inputArray, 0, array, index, inputArray.length);
-            System.arraycopy(tmpArray, 0, array, index + c.size(), tmpArray.length);
-        }
-        size += c.size();
+
+//        if (size + c.size() > capacity) {
+//            capacity = size + c.size();
+//            array = Arrays.copyOf(array, capacity);
+//        }
+//
+//        final var inputArray = c.toArray();
+//        if (index == size) {
+//            System.arraycopy(inputArray, 0, array, index, inputArray.length);
+//        } else {
+//            final var tmpArray = Arrays.copyOfRange(array, index, size);
+//            System.arraycopy(inputArray, 0, array, index, inputArray.length);
+//            System.arraycopy(tmpArray, 0, array, index + c.size(), tmpArray.length);
+//        }
+//        size += c.size();
         return true;
     }
 
@@ -178,15 +178,6 @@ public class MyArrayList<T> implements List<T> {
         return result;
     }
 
-    private void updateSize(int addToSize) {
-        MyArrayList curList = this;
-        do {
-            curList.size += addToSize;
-            curList = curList.parent;
-
-        } while (curList != null);
-    }
-
     public boolean retainAll(Collection<?> c) {
         if (c.contains(null) || c == null) {
             throw new NullPointerException();
@@ -201,15 +192,31 @@ public class MyArrayList<T> implements List<T> {
                 newSize++;
             }
         }
-        updateSize(newSize - size);
-        System.out.println(Arrays.toString(toArray()));
+
+        if (parent == null) {
+            size = newSize;
+        } else {
+            subList(newSize, size).clear();
+        }
         return newSize > 0;
     }
 
     public void clear() {
-        size = 0;
-        capacity = INITIAL_CAPACITY;
-        array = (T[]) new Object[capacity];
+        if (parent == null) {
+            size = 0;
+        } else {
+            final int elementsToRemove = size;
+
+            MyArrayList root = this; // find root
+            while (root.parent != null) {
+                root.size -= elementsToRemove; // change size of sublists
+                root = root.parent;
+            }
+
+            for (int i = 0; i < elementsToRemove; i++) {
+                root.remove(offset);
+            }
+        }
     }
 
     public T get(int index) {

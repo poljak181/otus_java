@@ -191,6 +191,48 @@ class MyArrayListTest {
     }
 
     @Test
+    void remove() {
+        list.remove(0);
+        assertArrayEquals(new Integer[]{1, 2, 3, 4, 5, 6, 7, 8, 9}, list.toArray());
+        list.remove(8);
+        assertArrayEquals(new Integer[]{1, 2, 3, 4, 5, 6, 7, 8}, list.toArray());
+    }
+
+    @Test
+    void removeSubList() {
+        final var sublist1 = list.subList(4, 8); // 4, 5, 6, 7
+        sublist1.remove(0);
+        sublist1.remove(2);
+        assertArrayEquals(new Integer[]{5, 6}, sublist1.toArray());
+        assertArrayEquals(new Integer[]{0, 1, 2, 3, 5, 6, 8, 9}, list.toArray());
+        final var sublist2 = sublist1.subList(0, 1);
+        sublist2.remove(0);
+        assertArrayEquals(new Integer[]{}, sublist2.toArray());
+        assertArrayEquals(new Integer[]{0, 1, 2, 3, 6, 8, 9}, list.toArray());
+    }
+
+    @Test
+    void remove1() {
+        list.remove(Integer.valueOf(0));
+        assertArrayEquals(new Integer[]{1, 2, 3, 4, 5, 6, 7, 8, 9}, list.toArray());
+        list.remove(Integer.valueOf(8));
+        assertArrayEquals(new Integer[]{1, 2, 3, 4, 5, 6, 7, 9}, list.toArray());
+    }
+
+    @Test
+    void removeSubList1() {
+        final var sublist1 = list.subList(4, 8); // 4, 5, 6, 7
+        sublist1.remove(Integer.valueOf(4));
+        sublist1.remove(Integer.valueOf(7));
+        assertArrayEquals(new Integer[]{5, 6}, sublist1.toArray());
+        assertArrayEquals(new Integer[]{0, 1, 2, 3, 5, 6, 8, 9}, list.toArray());
+        final var sublist2 = sublist1.subList(0, 1);
+        sublist2.remove(Integer.valueOf(5));
+        assertArrayEquals(new Integer[]{}, sublist2.toArray());
+        assertArrayEquals(new Integer[]{0, 1, 2, 3, 6, 8, 9}, list.toArray());
+    }
+
+    @Test
     void testAddIndex() {
         list.add(7, 15);
         assertArrayEquals(new Integer[]{0, 1, 2, 3, 4, 5, 6, 15, 7, 8, 9}, list.toArray());
@@ -215,37 +257,44 @@ class MyArrayListTest {
     }
 
     @Test
-    void remove() {
-        list.remove(0);
-        assertArrayEquals(new Integer[]{1, 2, 3, 4, 5, 6, 7, 8, 9}, list.toArray());
-        list.remove(8);
-        assertArrayEquals(new Integer[]{1, 2, 3, 4, 5, 6, 7, 8}, list.toArray());
+    void testContainsAll() {
+        assertEquals(true, list.containsAll(Arrays.asList(2, 5, 7)));
+        assertEquals(false, list.containsAll(Arrays.asList(22, 5, 7)));
     }
 
     @Test
-    void removeSubList() {
-        final var sublist1 = list.subList(4, 8); // 4, 5, 6, 7
-        sublist1.remove(0);
-        sublist1.remove(2);
-        assertArrayEquals(new Integer[]{5, 6}, sublist1.toArray());
-        assertArrayEquals(new Integer[]{0, 1, 2, 3, 5, 6, 8, 9}, list.toArray());
-        final var sublist2 = sublist1.subList(0, 1);
-        sublist2.remove(0);
-        assertArrayEquals(new Integer[]{}, sublist2.toArray());
-        assertArrayEquals(new Integer[]{0, 1, 2, 3, 6, 8, 9}, list.toArray());
-    }
-
-
-    @Test
-    void containsAll() {
+    void testContainsAllSublist() {
+        final var sublist1 = list.subList(1, list.size() - 1);         // 1, 2, 3, 4, 5, 6, 7, 8
+        final var sublist2 = sublist1.subList(1, sublist1.size() - 1); // 2, 3, 4, 5, 6, 7
+        final var sublist3 = sublist2.subList(1, sublist2.size() - 1); // 3, 4, 5, 6
+        final var sublist4 = sublist3.subList(1, sublist3.size() - 1); // 4, 5
+        assertEquals(true, sublist1.containsAll(Arrays.asList(1, 2, 3, 4)));
+        assertEquals(false, sublist2.containsAll(Arrays.asList(1, 2, 3, 4)));
+        assertEquals(false, sublist3.containsAll(Arrays.asList(3, 4, 5, 6, 7)));
+        assertEquals(true, sublist3.containsAll(Arrays.asList(3, 4, 5, 6)));
+        assertEquals(true, sublist4.containsAll(Arrays.asList(4, 5)));
     }
 
     @Test
-    void addAll() {
+    void testAddAll() {
     }
 
     @Test
-    void addAll1() {
+    void testAddAllSublist() {
+    }
+
+    @Test
+    void testAddAllIndex() {
+        assertEquals(true, list.addAll(3, Arrays.asList(88, 99)));
+        assertArrayEquals(new Integer[]{0, 1, 2, 88, 99, 3, 4, 5, 6, 7, 8, 9}, list.toArray());
+    }
+
+    @Test
+    void testAddAllIndexSublist() {
+        final var sublist = list.subList(3, 6); // 3, 4, 5
+        assertEquals(true, sublist.addAll(0, Arrays.asList(666, 999)));
+        assertArrayEquals(new Integer[]{666, 999, 3, 4, 5}, sublist.toArray());
+        assertArrayEquals(new Integer[]{0, 1, 2, 666, 999, 3, 4, 5, 6, 7, 8, 9}, list.toArray());
     }
 
     @Test
@@ -261,14 +310,41 @@ class MyArrayListTest {
 
     @Test
     void testRetainAllSubList() {
-        final var sublist1 = list.subList(2, 8);
+        final var sublist1 = list.subList(2, 8); // 2, 3, 4, 5, 6, 7
         Collection<Integer> c = Arrays.asList(4, 2, 1);
         sublist1.retainAll(c);
         assertArrayEquals(new Integer[] {2, 4}, sublist1.toArray());
+        assertArrayEquals(new Integer[] {0, 1, 2, 4, 8, 9}, list.toArray());
     }
 
     @Test
-    void clear() {
+    void testClear() {
+        list.clear();
+        assertEquals(true, list.isEmpty());
+        assertEquals(0, list.size());
+    }
+
+    @Test
+    void testClearSubList() {
+        final var sublist1 = list.subList(1, list.size() - 1);
+        assertArrayEquals(new Integer[]{1, 2, 3, 4, 5, 6, 7, 8}, sublist1.toArray());
+        final var sublist2 = sublist1.subList(1, sublist1.size() - 1);
+        assertArrayEquals(new Integer[]{2, 3, 4, 5, 6, 7}, sublist2.toArray());
+        final var sublist3 = sublist2.subList(1, sublist2.size() - 1);
+        assertArrayEquals(new Integer[]{3, 4, 5, 6}, sublist3.toArray());
+        final var sublist4 = sublist3.subList(1, sublist3.size() - 1);
+        assertArrayEquals(new Integer[]{4, 5}, sublist4.toArray());
+
+        sublist4.clear();
+        assertEquals(0, sublist4.size());
+        assertArrayEquals(new Integer[]{3, 6}, sublist3.toArray());
+        assertEquals(2, sublist3.size());
+        assertArrayEquals(new Integer[]{2, 3, 6, 7}, sublist2.toArray());
+        assertEquals(4, sublist2.size());
+        assertArrayEquals(new Integer[]{1, 2, 3, 6, 7, 8}, sublist1.toArray());
+        assertEquals(6, sublist1.size());
+        assertArrayEquals(new Integer[]{0, 1, 2, 3, 6, 7, 8, 9}, list.toArray());
+        assertEquals(8, list.size());
     }
 
     @Test
@@ -296,14 +372,6 @@ class MyArrayListTest {
         sublist1.set(5, 777);
         assertEquals(777, sublist1.get(5));
         assertEquals(777, list.get(7));
-    }
-
-    @Test
-    void add1() {
-    }
-
-    @Test
-    void remove1() {
     }
 
     @Test
