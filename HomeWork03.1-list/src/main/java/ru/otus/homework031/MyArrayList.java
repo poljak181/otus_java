@@ -47,7 +47,7 @@ public class MyArrayList<T> implements List<T> {
     }
 
     public class MyIterator implements Iterator<T> {
-        int curIndex = offset;
+        int curIndex = 0;
         int lastReturnedIndex = -1;
 
         public MyIterator() {
@@ -55,7 +55,7 @@ public class MyArrayList<T> implements List<T> {
 
         @Override
         public boolean hasNext() {
-            return curIndex < offset + size; // max index
+            return curIndex < size; // max index
         }
 
         @Override
@@ -64,7 +64,8 @@ public class MyArrayList<T> implements List<T> {
                 throw new NoSuchElementException();
             }
             lastReturnedIndex = curIndex;
-            return MyArrayList.this.array[curIndex++];
+            ++curIndex;
+            return MyArrayList.this.array[offset + lastReturnedIndex];
         }
     }
 
@@ -101,6 +102,29 @@ public class MyArrayList<T> implements List<T> {
         }
     }
 
+    public T remove(int index) {
+        if (index >= size || index < 0) {
+            throw new ArrayIndexOutOfBoundsException();
+        }
+
+        MyArrayList root = this;
+        while (root.parent != null) {
+            --root.size;
+            root = root.parent;
+        }
+
+        final int rootIndex = offset + index;
+        for (int i = rootIndex; i < root.size - 1; i++) {
+            swap(i, i + 1);
+        }
+
+        T removedObject = array[root.size - 1];
+        array[root.size - 1] = null;
+        --root.size;
+//        System.out.println(Arrays.toString(array));
+        return removedObject;
+    }
+
     public boolean remove(Object o) {
         if (o == null) {
             throw new NullPointerException();
@@ -108,7 +132,7 @@ public class MyArrayList<T> implements List<T> {
         final var indexToRemove = indexOf(o);
         if (indexToRemove != -1) {
             remove(indexToRemove);
-            return false;
+            return true;
         } else {
             return false;
         }
@@ -145,21 +169,6 @@ public class MyArrayList<T> implements List<T> {
             ++i;
         }
 
-
-//        if (size + c.size() > capacity) {
-//            capacity = size + c.size();
-//            array = Arrays.copyOf(array, capacity);
-//        }
-//
-//        final var inputArray = c.toArray();
-//        if (index == size) {
-//            System.arraycopy(inputArray, 0, array, index, inputArray.length);
-//        } else {
-//            final var tmpArray = Arrays.copyOfRange(array, index, size);
-//            System.arraycopy(inputArray, 0, array, index, inputArray.length);
-//            System.arraycopy(tmpArray, 0, array, index + c.size(), tmpArray.length);
-//        }
-//        size += c.size();
         return true;
     }
 
@@ -276,30 +285,7 @@ public class MyArrayList<T> implements List<T> {
         }
 
         ++root.size;
-        System.out.println(Arrays.toString(array) + ", root size: " + root.size);
-    }
-
-    public T remove(int index) {
-        if (index >= size || index < 0) {
-            throw new ArrayIndexOutOfBoundsException();
-        }
-
-        MyArrayList root = this;
-        while (root.parent != null) {
-            --root.size;
-            root = root.parent;
-        }
-
-        final int rootIndex = offset + index;
-        for (int i = rootIndex; i < root.size - 1; i++) {
-            swap(i, i + 1);
-        }
-
-        T removedObject = array[root.size - 1];
-        array[root.size - 1] = null;
-        --root.size;
-        System.out.println(Arrays.toString(array));
-        return removedObject;
+//        System.out.println(Arrays.toString(array) + ", root size: " + root.size);
     }
 
     public int lastIndexOf(Object o) {
@@ -331,8 +317,9 @@ public class MyArrayList<T> implements List<T> {
             if (!hasPrevious()) {
                 throw new NoSuchElementException();
             }
+            --curIndex;
             lastReturnedIndex = curIndex;
-            return array[--curIndex];
+            return array[offset + curIndex];
         }
 
         @Override
@@ -400,7 +387,6 @@ public class MyArrayList<T> implements List<T> {
 
     public void print() {
         System.out.println(Arrays.toString(array) + ", size:" + size);
-
     }
 
     private void swap(int i, int j) {
