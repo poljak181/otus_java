@@ -211,6 +211,9 @@ public class MyArrayList<T> implements List<T> {
 
     public void clear() {
         if (parent == null) {
+            for (int i = offset; i < size; i++) {
+                array[i] = null;
+            }
             size = 0;
         } else {
             final int elementsToRemove = size;
