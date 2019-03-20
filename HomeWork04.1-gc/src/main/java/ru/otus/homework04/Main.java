@@ -1,15 +1,5 @@
 package ru.otus.homework04;
 
-import com.sun.management.GarbageCollectionNotificationInfo;
-
-import javax.management.NotificationEmitter;
-import javax.management.NotificationListener;
-import javax.management.openmbean.CompositeData;
-import java.lang.management.GarbageCollectorMXBean;
-import java.lang.management.ManagementFactory;
-import java.text.SimpleDateFormat;
-import java.util.*;
-
 /*
  -Xms512m
  -Xmx512m
@@ -21,135 +11,33 @@ import java.util.*;
 */
 
 public class Main {
-    final private static long MSECS_IN_MINUTE = 60_000;
-    final private static long TIME_TO_SLEEP_IN_MSECS = 250;
-    final private static int COUNT_TO_ADD = 110_000;
-    final private static int COUNT_TO_REMOVE = COUNT_TO_ADD/2;
-
-    static class Stats {
-        public Stats() {
-            this.counter = 0;
-            this.duration = 0;
-        }
-
-        public int counter;
-        public long duration;
-    }
-
-    private static long startTime = 0;
-    private static long timeToPrintStat = 0;
-    private static HashMap<String, Stats> stats = new HashMap<>();
-    private static HashMap<String, Stats> fullStat = new HashMap<>();
-
     public static void main(String[] args) throws InterruptedException {
-        System.out.println("Installing listeners to GC events...");
-        installGCMonitoring();
-        System.out.println("Starting allocate memory...");
+        if (args.length != 1) {
+            System.out.println("Invalid arguments. Stopping application...");
+            System.out.println("Specify name of file to store statistic.");
+            return;
+        }
 
-        startTime = System.currentTimeMillis();
-        timeToPrintStat = startTime + MSECS_IN_MINUTE;
-        System.out.println("Start allocating at " + getTime(startTime, "HH:mm:ss"));
+        System.out.println("Store statistic in " + args[0]);
 
-        final var list = new ArrayList<Double>();
+        GcStatisticService statisticService = new GcStatisticService(args[0]);
+        Thread thread = new Thread(statisticService);
+        thread.start();
+
+        MemoryConsumptionService memoryConsumptionService = new MemoryConsumptionService();
+
         try {
-            while (true) {
-                list.addAll(Collections.nCopies(COUNT_TO_ADD, Double.valueOf(1.1)));
-                list.subList(list.size() - 1 - COUNT_TO_REMOVE, list.size() - 1).clear();
-
-                final var curTime = System.currentTimeMillis();
-                if (curTime > timeToPrintStat) {
-                    System.out.println("Current time: " + getTime(curTime, "HH:mm:ss"));
-                    printStat(stats);
-
-                    timeToPrintStat += MSECS_IN_MINUTE;
-                    for (var name : stats.keySet()) {
-                        var stat = stats.get(name);
-                        stat.counter = 0;
-                        stat.duration = 0;
-                    }
-                }
-
-                Thread.sleep(TIME_TO_SLEEP_IN_MSECS);
-            }
+            memoryConsumptionService.run();
         } catch (OutOfMemoryError e) {
-            final var curTime = System.currentTimeMillis();
-            System.out.println("All working time: " + getTime(curTime - startTime, "mm:ss"));
-            printStat(fullStat);
-        }
-    }
-
-    private static String getTime(long time, String timeFormat) {
-        final SimpleDateFormat format = new SimpleDateFormat(timeFormat);
-        return format.format(new Date(time));
-    }
-
-    private static void printStat(HashMap<String, Stats> statistic) {
-        System.out.println("==========================================================================================");
-        for (var name : statistic.keySet()) {
-            var stat = statistic.get(name);
-            System.out.println("name: " + name + ", count: " + stat.counter + ", duration: " + stat.duration + " msecs");
-        }
-        System.out.println("==========================================================================================");
-    }
-
-    private static void addToStat(HashMap<String, Stats> statistic, String name, long duration) {
-        var stat = statistic.get(name);
-        if (stat != null) {
-            stat.counter++;
-            stat.duration += duration;
-        }
-    }
-
-    private static void installGCMonitoring() {
-        final var gcbeans = ManagementFactory.getGarbageCollectorMXBeans();
-        for (GarbageCollectorMXBean gcbean : gcbeans) {
-            final String name = gcbean.getName();
-            System.out.println("GCBean name: " + name);
-
-            stats.put(name, new Stats());
-            fullStat.put(name, new Stats());
-
-            NotificationListener listener = (notification, handback) -> {
-                if (notification.getType().equals(GarbageCollectionNotificationInfo.GARBAGE_COLLECTION_NOTIFICATION)) {
-                    var info = GarbageCollectionNotificationInfo.from((CompositeData) notification.getUserData());
-
-                    final long duration = info.getGcInfo().getDuration();
-                    final String gcType = info.getGcAction();
-                    final var gcId = info.getGcInfo().getId();
-                    final var gcName = info.getGcName();
-                    final var gcCause = info.getGcCause();
-                    final var start = info.getGcInfo().getStartTime();
-                    final var end = info.getGcInfo().getEndTime();
-                    final var memoryBefore = info.getGcInfo().getMemoryUsageBeforeGc();
-                    final var memoryAfter = info.getGcInfo().getMemoryUsageAfterGc();
-
-                    final var curTime = System.currentTimeMillis();
-                    System.out.println("--------------------------Current time: "
-                            + getTime(curTime, "HH:mm:ss")
-                            + "---------------------------");
-
-                    System.out.println("gcType: " + gcType + "\n"
-                            + " gcName: "  + gcName + "\n"
-                            + " gcId: " + gcId + "\n"
-                            + " cause: " + gcCause + "\n"
-                            + " start: " + start + "\n"
-                            + " end: " + end + "\n"
-                            + " memory before: " + memoryBefore + "\n"
-                            + " memory after: " + memoryAfter + "\n"
-                            + "duration: " + duration + " milliseconds");
-
-                    addToStat(stats, gcName, duration);
-                    addToStat(fullStat, gcName, duration);
-                }
-            };
-
-            NotificationEmitter emitter = (NotificationEmitter) gcbean;
-            emitter.addNotificationListener(listener, null, null);
+            statisticService.stop();
+            statisticService.writeFullStatistic();
         }
     }
 }
 
 /*
+Выводы.
+
 Serial
 полное время работы: 03:40
 по минутам
