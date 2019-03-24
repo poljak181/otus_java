@@ -7,6 +7,10 @@ import static org.junit.jupiter.api.Assertions.*;
 public class HashMapTest {
     private HashMap<String, Integer> map = new HashMap();
 
+    HashMapTest() {
+        System.out.println("---Constructor---");
+    }
+
     @BeforeAll
     static void beforeAll() {
         System.out.println("Before all");
