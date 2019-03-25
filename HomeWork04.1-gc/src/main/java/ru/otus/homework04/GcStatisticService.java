@@ -12,6 +12,7 @@ import java.lang.management.ManagementFactory;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 public class GcStatisticService implements Runnable {
     final private static long MSECS_IN_MINUTE = 60_000;
@@ -31,7 +32,7 @@ public class GcStatisticService implements Runnable {
     private ConcurrentHashMap<String, Stats> periodicStatistics = new ConcurrentHashMap<>();
     private ConcurrentHashMap<String, Stats> fullStatistics = new ConcurrentHashMap<>();
     private String fileToStoreStatistic;
-    private volatile boolean exit = false;
+    private AtomicBoolean exit = new AtomicBoolean(true);
 
     GcStatisticService(String fileToStoreStatistic) {
         this.fileToStoreStatistic = fileToStoreStatistic;
@@ -49,7 +50,7 @@ public class GcStatisticService implements Runnable {
         startTime = System.currentTimeMillis();
         timeToPrintStat = startTime + MSECS_IN_MINUTE;
 
-        while (!exit) {
+        while (!exit.get()) {
             final var curTime = System.currentTimeMillis();
             if (curTime > timeToPrintStat) {
                 writeStatistic("Statistic for last minute", periodicStatistics);
@@ -77,7 +78,7 @@ public class GcStatisticService implements Runnable {
     }
 
     public void stop() {
-        exit = true;
+        exit.set(true);
     }
 
     private String getTime(long time, String timeFormat) {
