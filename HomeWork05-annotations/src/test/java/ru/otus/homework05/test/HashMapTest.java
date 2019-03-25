@@ -1,4 +1,6 @@
-package ru.otus.homework05;
+package ru.otus.homework05.test;
+
+import ru.otus.homework05.testframework.api.*;
 
 import java.util.HashMap;
 

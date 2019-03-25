@@ -1,4 +1,4 @@
-package ru.otus.homework05;
+package ru.otus.homework05.testframework.core;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
@@ -11,17 +11,25 @@ public class ReflectionHelper {
     }
 
     static <T> T instantiate(Class<T> type, Object... args) {
+        boolean isAccessible = true;
+        Constructor<T> constructor = null;
         try {
             if (args.length == 0) {
-                final Constructor<T> constructor = type.getDeclaredConstructor();
+                constructor = type.getDeclaredConstructor();
+                isAccessible = constructor.canAccess(null);
+                constructor.setAccessible(true);
                 return constructor.newInstance();
             } else {
                 final Class<?>[] classes = toClasses(args);
-                final Constructor<T> constructor = type.getDeclaredConstructor(classes);
+                constructor = type.getDeclaredConstructor(classes);
                 return constructor.newInstance(args);
             }
         } catch (NoSuchMethodException | InstantiationException | IllegalAccessException | InvocationTargetException e) {
             e.printStackTrace();
+        } finally {
+            if (constructor != null && !isAccessible) {
+                constructor.setAccessible(false);
+            }
         }
         return null;
     }

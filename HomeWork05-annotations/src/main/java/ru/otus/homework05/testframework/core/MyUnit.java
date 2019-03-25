@@ -1,4 +1,6 @@
-package ru.otus.homework05;
+package ru.otus.homework05.testframework.core;
+
+import ru.otus.homework05.testframework.api.*;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
