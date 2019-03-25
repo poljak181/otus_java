@@ -26,16 +26,14 @@ public class ReflectionHelper {
         return null;
     }
 
-    static <T> Object callMethod(Class<T> type, Object object, String name, Object... args) throws InvocationTargetException {
-        Method method = null;
+    static <T> Object callMethod(Object object, Method method, Object... args) throws InvocationTargetException {
         boolean isAccessible = true;
 
         try {
-            method = type.getDeclaredMethod(name, toClasses(args));
             isAccessible = method.canAccess(object);
             method.setAccessible(true);
             return method.invoke(object, args);
-        } catch (NoSuchMethodException | IllegalAccessException e) {
+        } catch (IllegalAccessException e) {
             e.printStackTrace();
         } catch (InvocationTargetException e) {
             throw e;

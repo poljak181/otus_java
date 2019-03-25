@@ -66,7 +66,7 @@ public class MyUnit {
 
     private static void executeStaticMethods(Class<?> testClass, List<Method> methods) throws InvocationTargetException {
         for (var method : methods) {
-            ReflectionHelper.callMethod(testClass, null, method.getName());
+            ReflectionHelper.callMethod(null, method);
         }
     }
 
@@ -77,11 +77,11 @@ public class MyUnit {
 
             Collections.shuffle(beforeEachMethods);
             for (var beforeEachMethod : beforeEachMethods) {
-                ReflectionHelper.callMethod(testClass, object, beforeEachMethod.getName());
+                ReflectionHelper.callMethod(object, beforeEachMethod);
             }
 
             try {
-                ReflectionHelper.callMethod(testClass, object, method.getName());
+                ReflectionHelper.callMethod(object, method);
             } catch (InvocationTargetException e) {
                 System.out.println("[ERROR]: " + e.getCause());
                 failuresCount++;
@@ -89,7 +89,7 @@ public class MyUnit {
 
             Collections.shuffle(afterEachMethods);
             for (var afterEachMethod : afterEachMethods) {
-                ReflectionHelper.callMethod(testClass, object, afterEachMethod.getName());
+                ReflectionHelper.callMethod(object, afterEachMethod);
             }
         }
     }
