@@ -34,23 +34,22 @@ public class ReflectionHelper {
         return null;
     }
 
-    static <T> Object callMethod(Object object, Method method, Object... args) throws InvocationTargetException {
+    static <T> boolean callMethod(Object object, Method method, Object... args) {
         boolean isAccessible = true;
 
         try {
             isAccessible = method.canAccess(object);
             method.setAccessible(true);
-            return method.invoke(object, args);
-        } catch (IllegalAccessException e) {
-            e.printStackTrace();
-        } catch (InvocationTargetException e) {
-            throw e;
+            method.invoke(object, args);
+            return true;
+        } catch (IllegalAccessException | InvocationTargetException e) {
+            e.printStackTrace(System.out); // synchronize err with out
         } finally {
             if (method != null && !isAccessible) {
                 method.setAccessible(false);
             }
         }
-        return null;
+        return false;
     }
 
     private static Class<?>[] toClasses(Object[] args) {

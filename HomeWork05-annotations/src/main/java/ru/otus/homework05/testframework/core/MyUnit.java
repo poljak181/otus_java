@@ -2,7 +2,6 @@ package ru.otus.homework05.testframework.core;
 
 import ru.otus.homework05.testframework.api.*;
 
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
@@ -11,6 +10,7 @@ import java.util.List;
 
 public class MyUnit {
     private static int failuresCount = 0;
+    private static int runCount = 0;
     private static List<Method> beforeAllMethods = new ArrayList<>();
     private static List<Method> afterAllMethods = new ArrayList<>();
     private static List<Method> testMethods = new ArrayList<>();
@@ -27,11 +27,12 @@ public class MyUnit {
         shuffleMethods();
         execute(testClass);
 
-        System.out.println("\nTests run: " + testMethods.size() + ", Failures: " + failuresCount);
+        System.out.println("\nTests run: " + runCount + ", Failures: " + failuresCount);
     }
 
     private static void clear() {
         failuresCount = 0;
+        runCount = 0;
 
         beforeAllMethods.clear();
         afterAllMethods.clear();
@@ -78,36 +79,40 @@ public class MyUnit {
     }
 
     private static void execute(Class<?> testClass) {
-        try {
-            executeStaticMethods(beforeAllMethods);
+        if (executeStaticMethods(beforeAllMethods)) {
             executeMethods(testClass, testMethods, beforeEachMethods, afterEachMethods);
-            executeStaticMethods(afterAllMethods);
-        } catch (InvocationTargetException e) {
-            e.printStackTrace();
         }
+        executeStaticMethods(afterAllMethods);
     }
 
-    private static void executeStaticMethods(List<Method> methods) throws InvocationTargetException {
+    private static boolean executeStaticMethods(List<Method> methods) {
         for (var method : methods) {
-            ReflectionHelper.callMethod(null, method);
+            if (!ReflectionHelper.callMethod(null, method)) {
+                return false;
+            }
         }
+        return true;
     }
 
-    private static void executeMethods(Class<?> testClass, List<Method> testMethods, List<Method> beforeEachMethods,
-                                       List<Method> afterEachMethods) throws InvocationTargetException {
+    private static void executeMethods(Class<?> testClass, List<Method> testMethods,
+                                       List<Method> beforeEachMethods, List<Method> afterEachMethods) {
         for (var method : testMethods) {
             final var object = ReflectionHelper.instantiate(testClass);
 
             Collections.shuffle(beforeEachMethods);
+            boolean beforeEachSuccess = true;
             for (var beforeEachMethod : beforeEachMethods) {
-                ReflectionHelper.callMethod(object, beforeEachMethod);
+                if (!ReflectionHelper.callMethod(object, beforeEachMethod)) {
+                    beforeEachSuccess = false;
+                    break;
+                }
             }
 
-            try {
-                ReflectionHelper.callMethod(object, method);
-            } catch (InvocationTargetException e) {
-                System.out.println("[ERROR]: " + e.getCause());
-                failuresCount++;
+            if (beforeEachSuccess) {
+                if (!ReflectionHelper.callMethod(object, method)) {
+                    failuresCount++;
+                }
+                runCount++;
             }
 
             Collections.shuffle(afterEachMethods);

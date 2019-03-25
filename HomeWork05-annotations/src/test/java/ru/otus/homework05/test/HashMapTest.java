@@ -26,6 +26,7 @@ public class HashMapTest {
     @BeforeEach
     void beforeEach1() {
         System.out.println("Before each1");
+//        assertEquals(42, 0);
     }
 
     @BeforeEach
