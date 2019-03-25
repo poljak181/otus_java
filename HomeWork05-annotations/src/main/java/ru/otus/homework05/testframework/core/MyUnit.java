@@ -11,18 +11,36 @@ import java.util.List;
 
 public class MyUnit {
     private static int failuresCount = 0;
+    private static List<Method> beforeAllMethods = new ArrayList<>();
+    private static List<Method> afterAllMethods = new ArrayList<>();
+    private static List<Method> testMethods = new ArrayList<>();
+    private static List<Method> beforeEachMethods = new ArrayList<>();
+    private static List<Method> afterEachMethods = new ArrayList<>();
 
     public static void run(Class<?> testClass) {
+        clear();
 
+        if (!distributeMethods(testClass.getDeclaredMethods())) {
+            return;
+        }
+
+        shuffleMethods();
+        execute(testClass);
+
+        System.out.println("\nTests run: " + testMethods.size() + ", Failures: " + failuresCount);
+    }
+
+    private static void clear() {
         failuresCount = 0;
-        List<Method> beforeAllMethods = new ArrayList<>();
-        List<Method> afterAllMethods = new ArrayList<>();
-        List<Method> testMethods = new ArrayList<>();
-        List<Method> beforeEachMethods = new ArrayList<>();
-        List<Method> afterEachMethods = new ArrayList<>();
 
-        final var methods = testClass.getDeclaredMethods();
+        beforeAllMethods.clear();
+        afterAllMethods.clear();
+        testMethods.clear();
+        beforeEachMethods.clear();
+        afterEachMethods.clear();
+    }
 
+    private static boolean distributeMethods(Method[] methods) {
         for (var method : methods) {
             final boolean methodIsStatic = Modifier.isStatic(method.getModifiers());
 
@@ -46,15 +64,20 @@ public class MyUnit {
 
                 if (methodIsStatic != annotationIsForStaticMethod) {
                     System.out.println("Incorrect using of annotations for static or not static methods");
-                    return;
+                    return false;
                 }
             }
         }
+        return true;
+    }
 
+    private static void shuffleMethods() {
         Collections.shuffle(beforeAllMethods);
         Collections.shuffle(afterAllMethods);
         Collections.shuffle(testMethods);
+    }
 
+    private static void execute(Class<?> testClass) {
         try {
             executeStaticMethods(beforeAllMethods);
             executeMethods(testClass, testMethods, beforeEachMethods, afterEachMethods);
@@ -62,8 +85,6 @@ public class MyUnit {
         } catch (InvocationTargetException e) {
             e.printStackTrace();
         }
-
-        System.out.println("\nTests run: " + testMethods.size() + ", Failures: " + failuresCount);
     }
 
     private static void executeStaticMethods(List<Method> methods) throws InvocationTargetException {
