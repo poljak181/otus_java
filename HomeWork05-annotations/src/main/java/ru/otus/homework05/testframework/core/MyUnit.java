@@ -56,9 +56,9 @@ public class MyUnit {
         Collections.shuffle(testMethods);
 
         try {
-            executeStaticMethods(testClass, beforeAllMethods);
+            executeStaticMethods(beforeAllMethods);
             executeMethods(testClass, testMethods, beforeEachMethods, afterEachMethods);
-            executeStaticMethods(testClass, afterAllMethods);
+            executeStaticMethods(afterAllMethods);
         } catch (InvocationTargetException e) {
             e.printStackTrace();
         }
@@ -66,7 +66,7 @@ public class MyUnit {
         System.out.println("\nTests run: " + testMethods.size() + ", Failures: " + failuresCount);
     }
 
-    private static void executeStaticMethods(Class<?> testClass, List<Method> methods) throws InvocationTargetException {
+    private static void executeStaticMethods(List<Method> methods) throws InvocationTargetException {
         for (var method : methods) {
             ReflectionHelper.callMethod(null, method);
         }
