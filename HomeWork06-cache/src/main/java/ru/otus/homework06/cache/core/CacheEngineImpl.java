@@ -35,7 +35,7 @@ public class CacheEngineImpl<K, V> implements CacheEngine<K, V> {
 
     @Override
     public void put(K key, V value) {
-        map.put(key, new SoftReference<>(new CacheElement(key, value)));
+        map.put(key, new SoftReference<>(new CacheElement<>(key, value)));
         LOG.trace("Put element in cache, key: {}, size: {}", key, map.size());
 
         if (isEternal) {
@@ -62,9 +62,10 @@ public class CacheEngineImpl<K, V> implements CacheEngine<K, V> {
             return null;
         } else {
             hitCount.incrementAndGet();
-            result.get().setAccessed();
+            var element = result.get();
+            element.setAccessed();
             LOG.trace("Hit element with key: {} (hit count: {}, miss count: {})", key, hitCount.get(), missCount.get());
-            return result.get().getValue();
+            return element.getValue();
         }
     }
 
