@@ -1,0 +1,50 @@
+19:14:04:526  WARN main atm.MoneyCell:20 - Money cell can't fit 11 banknotes. Current number: 0, max number: 10
+19:14:04:530 TRACE main atm.MoneyCell:25 - Put 4 of RUR_50 in money cell
+19:14:04:535 TRACE main atm.MoneyCell:25 - Put 4 of RUR_50 in money cell
+19:14:04:536 TRACE main atm.MoneyCell:25 - Put 2 of RUR_50 in money cell
+19:14:04:539 TRACE main atm.MoneyCell:25 - Put 5 of RUR_50 in money cell
+19:14:04:542 TRACE main atm.MoneyCell:25 - Put 4 of RUR_50 in money cell
+19:14:04:544 TRACE main atm.MoneyCell:31 - MoneyCell with RUR_50 has only 0 banknotes but 4 was requested
+19:14:04:545 TRACE main atm.MoneyCell:25 - Put 3 of RUR_50 in money cell
+19:14:04:545 TRACE main atm.MoneyCell:31 - MoneyCell with RUR_50 has only 3 banknotes but 4 was requested
+19:14:04:546 TRACE main atm.MoneyCell:36 - Get 3 of RUR_50 in money cell
+19:14:04:563 TRACE main atm.MoneyCell:25 - Put 3 of RUR_50 in money cell
+19:14:04:564 TRACE main atm.MoneyCell:25 - Put 3 of RUR_1000 in money cell
+19:14:04:564 TRACE main atm.MoneyCell:25 - Put 3 of RUR_100 in money cell
+19:14:04:570 TRACE main atm.MoneyCell:36 - Get 3 of RUR_1000 in money cell
+19:14:04:571 TRACE main atm.MoneyCell:36 - Get 3 of RUR_100 in money cell
+19:14:04:571 TRACE main atm.MoneyCell:36 - Get 3 of RUR_50 in money cell
+19:14:04:593 TRACE main atm.Atm:38 - Not enough money in ATM. Request: 100, existing sum: 0
+19:14:04:594 TRACE main atm.MoneyCell:25 - Put 100 of RUR_2000 in money cell
+19:14:04:594 TRACE main atm.MoneyCell:25 - Put 100 of RUR_500 in money cell
+19:14:04:594 TRACE main atm.MoneyCell:25 - Put 100 of RUR_200 in money cell
+19:14:04:595 TRACE main atm.MoneyCell:25 - Put 100 of RUR_50 in money cell
+19:14:04:595 TRACE main atm.MoneyCell:25 - Put 100 of RUR_1000 in money cell
+19:14:04:596 TRACE main atm.MoneyCell:25 - Put 100 of RUR_100 in money cell
+19:14:04:596 TRACE main atm.MoneyCell:25 - Put 100 of RUR_5000 in money cell
+19:14:04:601 TRACE main atm.Atm:48 - Requested sum of money must be multiple of 50
+19:14:04:604 TRACE main atm.MoneyCell:36 - Get 100 of RUR_5000 in money cell
+19:14:04:605 TRACE main atm.MoneyCell:36 - Get 1 of RUR_500 in money cell
+19:14:04:606 TRACE main atm.MoneyCell:36 - Get 2 of RUR_2000 in money cell
+19:14:04:606 TRACE main atm.MoneyCell:36 - Get 1 of RUR_1000 in money cell
+19:14:04:608 TRACE main atm.MoneyCell:25 - Put 100 of RUR_2000 in money cell
+19:14:04:609 TRACE main atm.MoneyCell:25 - Put 100 of RUR_500 in money cell
+19:14:04:609 TRACE main atm.MoneyCell:25 - Put 100 of RUR_200 in money cell
+19:14:04:610 TRACE main atm.MoneyCell:25 - Put 100 of RUR_50 in money cell
+19:14:04:610 TRACE main atm.MoneyCell:25 - Put 100 of RUR_1000 in money cell
+19:14:04:611 TRACE main atm.MoneyCell:25 - Put 100 of RUR_100 in money cell
+19:14:04:611 TRACE main atm.MoneyCell:25 - Put 100 of RUR_5000 in money cell
+19:14:04:618 TRACE main atm.MoneyCell:25 - Put 1 of RUR_2000 in money cell
+19:14:04:618 TRACE main atm.MoneyCell:25 - Put 1 of RUR_500 in money cell
+19:14:04:619 TRACE main atm.MoneyCell:25 - Put 1 of RUR_200 in money cell
+19:14:04:619 TRACE main atm.MoneyCell:25 - Put 1 of RUR_50 in money cell
+19:14:04:623 TRACE main atm.MoneyCell:25 - Put 1 of RUR_1000 in money cell
+19:14:04:624 TRACE main atm.MoneyCell:25 - Put 1 of RUR_100 in money cell
+19:14:04:625 TRACE main atm.MoneyCell:25 - Put 1 of RUR_5000 in money cell
+19:14:04:631 TRACE main atm.MoneyCell:25 - Put 100 of RUR_2000 in money cell
+19:14:04:631 TRACE main atm.MoneyCell:25 - Put 100 of RUR_500 in money cell
+19:14:04:632 TRACE main atm.MoneyCell:25 - Put 100 of RUR_200 in money cell
+19:14:04:632 TRACE main atm.MoneyCell:25 - Put 100 of RUR_50 in money cell
+19:14:04:632 TRACE main atm.MoneyCell:25 - Put 100 of RUR_1000 in money cell
+19:14:04:633 TRACE main atm.MoneyCell:25 - Put 100 of RUR_100 in money cell
+19:14:04:633 TRACE main atm.MoneyCell:25 - Put 100 of RUR_5000 in money cell
