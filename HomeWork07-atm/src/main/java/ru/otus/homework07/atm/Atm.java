@@ -33,6 +33,43 @@ public class Atm {
         }
     }
 
+    private int calcBanknotesNumberToTakeFromMoneyCell(Banknote banknote, int requestedSum) {
+        final var moneyCell = getMoneyCell(banknote);
+        if (moneyCell == null) {
+            return 0;
+        }
+
+        final int banknotesInCell = moneyCell.getBanknoteCount();
+        final int needBanknotes = requestedSum / banknote.getValue();
+        return needBanknotes <= banknotesInCell ? needBanknotes : banknotesInCell;
+    }
+
+    private Map<Banknote, Integer> takeBanknotesFromMoneyCells(int requestedSum) {
+        int restOfRequestedSum = requestedSum;
+        Map<Banknote, Integer> banknotesToReturn = new LinkedHashMap<>(); // store order of adding
+
+        final var sortedByValue = Banknote.getSortedByValue();
+
+        for (int i = sortedByValue.size() - 1; i >= 0; i--) {
+            final var banknote = sortedByValue.get(i);
+            final int banknotesNumber = calcBanknotesNumberToTakeFromMoneyCell(banknote, restOfRequestedSum);
+            if (banknotesNumber == 0) {
+                continue;
+            }
+
+            restOfRequestedSum -= banknotesNumber * banknote.getValue();
+            banknotesToReturn.put(banknote, banknotesNumber);
+
+            if (restOfRequestedSum == 0) {
+                for (var banknoteToReturn : banknotesToReturn.entrySet()) {
+                    tryGet(banknoteToReturn.getKey(), banknoteToReturn.getValue());
+                }
+                break;
+            }
+        }
+        return banknotesToReturn;
+    }
+
     public Map<Banknote, Integer> getMoney(int requestedSum) {
         final int balance = getBalance();
         if (requestedSum > balance) {
@@ -41,50 +78,21 @@ public class Atm {
             return null;
         }
 
-        final var sortedByValue = Banknote.getSortedByValue();
-        assert (sortedByValue.size() > 0);
-
-        final var minValue = sortedByValue.get(0).getValue();
+        final var minValue = Banknote.getMinimalBanknote().getValue();
         if (requestedSum % minValue != 0) {
             System.out.println("Requested sum of money must be multiple of " + minValue);
             LOG.trace("Requested sum of money must be multiple of {}", minValue);
             return null;
         }
 
-        int restOfRequestedSum = requestedSum;
-        Map<Banknote, Integer> banknotesToReturn = new LinkedHashMap<>(); // store order of adding
-
-        for (int i = sortedByValue.size() - 1; i >= 0; i--) {
-            final var banknote = sortedByValue.get(i);
-            final int currentValue = banknote.getValue();
-            final var moneyCell = getMoneyCell(banknote);
-
-            if (moneyCell == null) {
-                continue;
-            }
-
-            final int banknotesInCell = moneyCell.getBanknoteCount();
-
-            final int needBanknotes = restOfRequestedSum / currentValue;
-            final int banknotesToAddInReturningResult = needBanknotes <= banknotesInCell ? needBanknotes : banknotesInCell;
-            if (banknotesToAddInReturningResult <= 0) {
-                continue;
-            }
-
-            restOfRequestedSum -= banknotesToAddInReturningResult * currentValue;
-            banknotesToReturn.put(banknote, banknotesToAddInReturningResult);
-
-            if (restOfRequestedSum == 0) {
-                for (var banknoteToReturn : banknotesToReturn.entrySet()) {
-                    tryGet(banknoteToReturn.getKey(), banknoteToReturn.getValue());
-                }
-                return banknotesToReturn;
-            }
+        var takenBanknotes = takeBanknotesFromMoneyCells(requestedSum);
+        if (takenBanknotes.isEmpty()) {
+            System.out.println("This sum: " + requestedSum + " can't be issued");
+            LOG.trace("This sum: {} can't be issued", requestedSum);
+            return null;
         }
 
-        System.out.println("This sum: " + requestedSum + " can't be issued");
-        LOG.trace("This sum: {} can't be issued", requestedSum);
-        return null;
+        return takenBanknotes;
     }
 
     public boolean putMoney(Map<Banknote, Integer> banknotes) {
