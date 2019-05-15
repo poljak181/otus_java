@@ -33,17 +33,6 @@ public class Atm {
         }
     }
 
-    private int calcBanknotesNumberToTakeFromMoneyCell(Banknote banknote, int requestedSum) {
-        final var moneyCell = getMoneyCell(banknote);
-        if (moneyCell == null) {
-            return 0;
-        }
-
-        final int banknotesInCell = moneyCell.getBanknoteCount();
-        final int needBanknotes = requestedSum / banknote.getValue();
-        return needBanknotes <= banknotesInCell ? needBanknotes : banknotesInCell;
-    }
-
     private Map<Banknote, Integer> takeBanknotesFromMoneyCells(int requestedSum) {
         int restOfRequestedSum = requestedSum;
         Map<Banknote, Integer> banknotesToReturn = new LinkedHashMap<>(); // store order of adding
@@ -52,13 +41,16 @@ public class Atm {
 
         for (int i = sortedByValue.size() - 1; i >= 0; i--) {
             final var banknote = sortedByValue.get(i);
-            final int banknotesNumber = calcBanknotesNumberToTakeFromMoneyCell(banknote, restOfRequestedSum);
-            if (banknotesNumber == 0) {
+            final var moneyCell = getMoneyCell(banknote);
+
+            if (moneyCell == null) {
                 continue;
             }
 
-            restOfRequestedSum -= banknotesNumber * banknote.getValue();
-            banknotesToReturn.put(banknote, banknotesNumber);
+            final int availableBanknotesCount = moneyCell.getAvailableBanknotesCount(restOfRequestedSum);
+
+            restOfRequestedSum -= availableBanknotesCount * banknote.getValue();
+            banknotesToReturn.put(banknote, availableBanknotesCount);
 
             if (restOfRequestedSum == 0) {
                 for (var banknoteToReturn : banknotesToReturn.entrySet()) {

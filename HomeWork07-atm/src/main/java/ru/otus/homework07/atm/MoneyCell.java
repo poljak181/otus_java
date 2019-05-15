@@ -52,4 +52,9 @@ public class MoneyCell {
     public void clear() {
         banknoteCount = 0;
     }
+
+    public int getAvailableBanknotesCount(int requestedSum) {
+        final int needBanknotes = requestedSum / banknote.getValue();
+        return needBanknotes <= banknoteCount ? needBanknotes : banknoteCount;
+    }
 }
