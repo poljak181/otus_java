@@ -88,7 +88,7 @@ public class Terminal {
         return Integer.valueOf(scanner.nextLine());
     }
 
-    private void printEneteredBanknotes(Map<Banknote, Integer> map) {
+    private void printEnteredBanknotes(Map<Banknote, Integer> map) {
         System.out.println("Banknotes entered: ");
         for (var banknoteEntry : map.entrySet()) {
             System.out.println("Banknote: " + banknoteEntry.getKey() + ", count: " + banknoteEntry.getValue());
@@ -104,7 +104,7 @@ public class Terminal {
 
         Map<Banknote, Integer> result = new HashMap<>();
         while (true) {
-            printEneteredBanknotes(result);
+            printEnteredBanknotes(result);
             printBanknotes(map);
 
             final int code = Integer.valueOf(scanner.nextLine());
