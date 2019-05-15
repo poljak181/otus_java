@@ -29,4 +29,8 @@ public enum Banknote {
         Collections.sort(result, Comparator.comparing(Banknote::getValue));
         return result;
     }
+
+    public static Banknote getMinimalBanknote() {
+        return Banknote.RUR_50;
+    }
 }
