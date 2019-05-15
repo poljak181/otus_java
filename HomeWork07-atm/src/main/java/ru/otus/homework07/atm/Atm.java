@@ -27,7 +27,9 @@ public class Atm {
     public void clearMoneyCells() {
         for (var banknoteValue : Banknote.values()) {
             var moneyCell = getMoneyCell(banknoteValue);
-            moneyCell.clear();
+            if (moneyCell != null) {
+                moneyCell.clear();
+            }
         }
     }
 
@@ -56,6 +58,11 @@ public class Atm {
             final var banknote = sortedByValue.get(i);
             final int currentValue = banknote.getValue();
             final var moneyCell = getMoneyCell(banknote);
+
+            if (moneyCell == null) {
+                continue;
+            }
+
             final int banknotesInCell = moneyCell.getBanknoteCount();
 
             final int needBanknotes = restOfRequestedSum / currentValue;
@@ -113,20 +120,16 @@ public class Atm {
     }
 
     private MoneyCell getMoneyCell(Banknote banknote) {
-        var moneyCell = moneyCellHashMap.get(banknote);
-        if (moneyCell == null) {
-            throw new IllegalArgumentException("Not supported banknote value: " + banknote.name());
-        }
-        return moneyCell;
+        return moneyCellHashMap.get(banknote);
     }
 
     private int put(Banknote banknote, int count) {
         MoneyCell moneyCell = getMoneyCell(banknote);
-        return moneyCell.put(count);
+        return moneyCell != null ? moneyCell.put(count) : 0;
     }
 
     private int tryGet(Banknote banknote, int count) {
         MoneyCell moneyCell = getMoneyCell(banknote);
-        return moneyCell.tryGet(count);
+        return moneyCell != null ? moneyCell.tryGet(count) : 0;
     }
 }
