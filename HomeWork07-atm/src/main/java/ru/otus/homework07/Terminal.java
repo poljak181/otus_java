@@ -9,12 +9,16 @@ import java.util.Scanner;
 
 public class Terminal {
     private Atm atm = null;
+    private Scanner scanner = null;
+
+    public Terminal() {
+        scanner = new Scanner(System.in);
+    }
 
     public void startSession(Atm atm) {
         this.atm = atm;
         printMenu();
 
-        Scanner scanner = new Scanner(System.in);
         while (scanner.hasNext()) {
 
             try {
@@ -22,12 +26,12 @@ public class Terminal {
 
                 switch (code) {
                     case 1:
-                        if (!atm.putMoney(getBanknotesToPut(scanner))) {
+                        if (!atm.putMoney(getBanknotesToPut())) {
                             System.out.println("Can't put this sum. Maybe atm is full. Try to put another sum");
                         }
                         break;
                     case 2:
-                        final int sum = getSumOfMoney(scanner);
+                        final int sum = getSumOfMoney();
                         var returnedBanknotes = atm.getMoney(sum);
                         if (returnedBanknotes != null) {
                             System.out.println("Returned banknotes:");
@@ -66,7 +70,7 @@ public class Terminal {
         System.out.println("0 - exit");
     }
 
-    private int getSumOfMoney(Scanner scanner) {
+    private int getSumOfMoney() {
         System.out.println("Enter sum:");
         return Integer.valueOf(scanner.nextLine());
     }
@@ -79,7 +83,7 @@ public class Terminal {
         System.out.println("0 - Finish entering");
     }
 
-    private int getBanknotesNumber(Scanner scanner) {
+    private int getBanknotesNumber() {
         System.out.println("Enter number of selected banknote:");
         return Integer.valueOf(scanner.nextLine());
     }
@@ -91,7 +95,7 @@ public class Terminal {
         }
     }
 
-    private Map<Banknote, Integer> getBanknotesToPut(Scanner scanner) {
+    private Map<Banknote, Integer> getBanknotesToPut() {
         int banknoteIntKey = 0;
         Map<Integer, Banknote> map = new HashMap<>();
         for (var banknote : Banknote.getSortedByValue()) {
@@ -109,7 +113,7 @@ public class Terminal {
             } else {
                 final Banknote selectedBanknote = map.get(code);
                 if (selectedBanknote != null) {
-                    final int number = getBanknotesNumber(scanner);
+                    final int number = getBanknotesNumber();
                     result.put(selectedBanknote, number);
                 } else {
                     System.out.println("Invalid option selected");
