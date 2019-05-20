@@ -1,42 +1,43 @@
 package ru.otus.homework07;
 
+import ru.otus.homework07.ioservices.ConsoleIOService;
+import ru.otus.homework07.ioservices.IOService;
 import ru.otus.homework07.atm.Atm;
 import ru.otus.homework07.atm.Banknote;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Scanner;
 
 public class Terminal {
     private Atm atm = null;
-    private Scanner scanner = null;
+    private IOService ioService;
 
     public Terminal() {
-        scanner = new Scanner(System.in);
+        ioService = new ConsoleIOService();
     }
 
     public void startSession(Atm atm) {
         this.atm = atm;
-        printMenu();
 
-        while (scanner.hasNext()) {
-
+        boolean exit = false;
+        while (!exit) {
+            printMenu();
             try {
-                int code = Integer.valueOf(scanner.nextLine());
+                int code = Integer.valueOf(ioService.readln());
 
                 switch (code) {
                     case 1:
                         if (!atm.putMoney(getBanknotesToPut())) {
-                            System.out.println("Can't put this sum. Maybe atm is full. Try to put another sum");
+                            ioService.writeln("Can't put this sum. Maybe atm is full. Try to put another sum");
                         }
                         break;
                     case 2:
                         final int sum = getSumOfMoney();
                         var returnedBanknotes = atm.getMoney(sum);
                         if (returnedBanknotes != null) {
-                            System.out.println("Returned banknotes:");
+                            ioService.writeln("Returned banknotes:");
                             for (var banknote : returnedBanknotes.entrySet()) {
-                                System.out.println("Banknote: " + banknote.getKey() + ", count: " + banknote.getValue());
+                                ioService.writeln("Banknote: " + banknote.getKey() + ", count: " + banknote.getValue());
                             }
                         }
                         break;
@@ -47,51 +48,47 @@ public class Terminal {
                         atm.printBalance();
                         break;
                     case 0:
-                        return;
+                        exit = true;
                     default:
                         break;
                 }
-
             } catch (NumberFormatException e) {
                 e.printStackTrace();
             }
-            printMenu();
         }
 
         this.atm = null;
     }
 
     private void printMenu() {
-        System.out.println("--------------------------------");
-        System.out.println("1 - put money");
-        System.out.println("2 - get money");
-        System.out.println("3 - fill with money");
-        System.out.println("4 - print balance");
-        System.out.println("0 - exit");
+        ioService.writeln("--------------------------------");
+        ioService.writeln("1 - put money");
+        ioService.writeln("2 - get money");
+        ioService.writeln("3 - fill with money");
+        ioService.writeln("4 - print balance");
+        ioService.writeln("0 - exit");
     }
 
     private int getSumOfMoney() {
-        System.out.println("Enter sum:");
-        return Integer.valueOf(scanner.nextLine());
+        return Integer.valueOf(ioService.readln("Enter sum: "));
     }
 
     private void printBanknotes(Map<Integer, Banknote> map) {
-        System.out.println("Select banknote: ");
+        ioService.writeln("Select banknote: ");
         for (var banknote : map.entrySet()) {
-            System.out.println(banknote.getKey() + " - " + banknote.getValue().name());
+            ioService.writeln(banknote.getKey() + " - " + banknote.getValue().name());
         }
-        System.out.println("0 - Finish entering");
+        ioService.writeln("0 - Finish entering");
     }
 
     private int getBanknotesNumber() {
-        System.out.println("Enter number of selected banknote:");
-        return Integer.valueOf(scanner.nextLine());
+        return Integer.valueOf(ioService.readln("Enter number of selected banknote: "));
     }
 
     private void printEnteredBanknotes(Map<Banknote, Integer> map) {
-        System.out.println("Banknotes entered: ");
+        ioService.writeln("Banknotes entered: ");
         for (var banknoteEntry : map.entrySet()) {
-            System.out.println("Banknote: " + banknoteEntry.getKey() + ", count: " + banknoteEntry.getValue());
+            ioService.writeln("Banknote: " + banknoteEntry.getKey() + ", count: " + banknoteEntry.getValue());
         }
     }
 
@@ -107,7 +104,7 @@ public class Terminal {
             printEnteredBanknotes(result);
             printBanknotes(map);
 
-            final int code = Integer.valueOf(scanner.nextLine());
+            final int code = Integer.valueOf(ioService.readln());
             if (code == 0) {
                 break;
             } else {
@@ -116,7 +113,7 @@ public class Terminal {
                     final int number = getBanknotesNumber();
                     result.put(selectedBanknote, number);
                 } else {
-                    System.out.println("Invalid option selected");
+                    ioService.writeln("Invalid option selected");
                 }
             }
         }
