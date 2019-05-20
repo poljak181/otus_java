@@ -53,6 +53,10 @@ public class MoneyCell {
         banknoteCount = 0;
     }
 
+    public int getFreeSpace() {
+        return banknoteMaxCount - banknoteCount;
+    }
+
     public int getAvailableBanknotesCount(int requestedSum) {
         final int needBanknotes = requestedSum / banknote.getValue();
         return needBanknotes <= banknoteCount ? needBanknotes : banknoteCount;
