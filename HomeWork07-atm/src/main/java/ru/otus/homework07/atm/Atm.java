@@ -49,8 +49,10 @@ public class Atm {
 
             final int availableBanknotesCount = moneyCell.getAvailableBanknotesCount(restOfRequestedSum);
 
-            restOfRequestedSum -= availableBanknotesCount * banknote.getValue();
-            banknotesToReturn.put(banknote, availableBanknotesCount);
+            if (availableBanknotesCount > 0) {
+                restOfRequestedSum -= availableBanknotesCount * banknote.getValue();
+                banknotesToReturn.put(banknote, availableBanknotesCount);
+            }
 
             if (restOfRequestedSum == 0) {
                 for (var banknoteToReturn : banknotesToReturn.entrySet()) {
@@ -87,9 +89,26 @@ public class Atm {
         return takenBanknotes;
     }
 
+    private boolean canPlaceAllBanknotes(Map<Banknote, Integer> banknotes) {
+        for (var banknoteToPut : banknotes.entrySet()) {
+            MoneyCell moneyCell = getMoneyCell(banknoteToPut.getKey());
+            if (moneyCell == null
+                    || moneyCell.getFreeSpace() < banknoteToPut.getValue()) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
     public boolean putMoney(Map<Banknote, Integer> banknotes) {
         if (banknotes.isEmpty()) {
             LOG.trace("Nothing to put");
+            return false;
+        }
+
+        if (!canPlaceAllBanknotes(banknotes)) {
+            LOG.trace("Can't place all banknotes");
             return false;
         }
 
