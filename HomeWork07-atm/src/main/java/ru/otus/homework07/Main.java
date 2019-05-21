@@ -7,11 +7,12 @@ package ru.otus.homework07;
 // • выдавать сумму остатка денежных средств
 
 import ru.otus.homework07.atm.Atm;
+import ru.otus.homework07.ioservices.ConsoleIOService;
 
 public class Main {
     public static void main(String[] args) {
         Atm atm = new Atm();
-        Terminal terminal = new Terminal();
+        Terminal terminal = new Terminal(new ConsoleIOService());
         terminal.startSession(atm);
     }
 }

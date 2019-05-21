@@ -1,6 +1,5 @@
 package ru.otus.homework07;
 
-import ru.otus.homework07.ioservices.ConsoleIOService;
 import ru.otus.homework07.ioservices.IOService;
 import ru.otus.homework07.atm.Atm;
 import ru.otus.homework07.atm.Banknote;
@@ -12,8 +11,8 @@ public class Terminal {
     private Atm atm = null;
     private IOService ioService;
 
-    public Terminal() {
-        ioService = new ConsoleIOService();
+    public Terminal(IOService ioService) {
+        this.ioService = ioService;
     }
 
     public void startSession(Atm atm) {
