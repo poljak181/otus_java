@@ -6,6 +6,7 @@ import org.junit.jupiter.api.Test;
 
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -53,6 +54,15 @@ class AtmTest {
         var result2 = atm.getMoney(5000);
         assertEquals(2, result2.get(Banknote.RUR_2000));
         assertEquals(1, result2.get(Banknote.RUR_1000));
+
+        atm.clearMoneyCells();
+        Map<Banknote, Integer> moneyPack = new HashMap<>();
+        moneyPack.put(Banknote.RUR_200, 3);
+        moneyPack.put(Banknote.RUR_500, 1);
+        atm.putMoney(moneyPack);
+
+        var result3 = atm.getMoney(600);
+        assertEquals(3, result2.get(Banknote.RUR_200));
     }
 
     @Test
