@@ -58,10 +58,10 @@ public class Atm {
                 for (var banknoteToReturn : banknotesToReturn.entrySet()) {
                     tryGet(banknoteToReturn.getKey(), banknoteToReturn.getValue());
                 }
-                break;
+                return banknotesToReturn;
             }
         }
-        return banknotesToReturn;
+        return null;
     }
 
     public Map<Banknote, Integer> getMoney(int requestedSum) {
@@ -80,10 +80,9 @@ public class Atm {
         }
 
         var takenBanknotes = takeBanknotesFromMoneyCells(requestedSum);
-        if (takenBanknotes.isEmpty()) {
+        if (takenBanknotes == null) {
             System.out.println("This sum: " + requestedSum + " can't be issued");
             LOG.trace("This sum: {} can't be issued", requestedSum);
-            return null;
         }
 
         return takenBanknotes;
