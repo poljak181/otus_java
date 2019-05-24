@@ -34,32 +34,37 @@ public class Atm {
     }
 
     private Map<Banknote, Integer> takeBanknotesFromMoneyCells(int requestedSum) {
-        int restOfRequestedSum = requestedSum;
         Map<Banknote, Integer> banknotesToReturn = new LinkedHashMap<>(); // store order of adding
 
         final var sortedByValue = Banknote.getSortedByValue();
+        final int size = sortedByValue.size();
+        int startIndex = sortedByValue.size() - 1;
+        for (int i = 0; i < size; ++i) {
+            int restOfRequestedSum = requestedSum;
+            for (int j = startIndex; j >= 0; --j) {
+                final var banknote = sortedByValue.get(j);
+                final var moneyCell = getMoneyCell(banknote);
 
-        for (int i = sortedByValue.size() - 1; i >= 0; i--) {
-            final var banknote = sortedByValue.get(i);
-            final var moneyCell = getMoneyCell(banknote);
-
-            if (moneyCell == null) {
-                continue;
-            }
-
-            final int availableBanknotesCount = moneyCell.getAvailableBanknotesCount(restOfRequestedSum);
-
-            if (availableBanknotesCount > 0) {
-                restOfRequestedSum -= availableBanknotesCount * banknote.getValue();
-                banknotesToReturn.put(banknote, availableBanknotesCount);
-            }
-
-            if (restOfRequestedSum == 0) {
-                for (var banknoteToReturn : banknotesToReturn.entrySet()) {
-                    tryGet(banknoteToReturn.getKey(), banknoteToReturn.getValue());
+                if (moneyCell == null || moneyCell.getBanknoteCount() == 0 || banknote.getValue() > requestedSum) {
+                    continue;
                 }
-                return banknotesToReturn;
+
+                final int availableBanknotesCount = moneyCell.getAvailableBanknotesCount(restOfRequestedSum);
+
+                if (availableBanknotesCount > 0) {
+                    restOfRequestedSum -= availableBanknotesCount * banknote.getValue();
+                    banknotesToReturn.put(banknote, availableBanknotesCount);
+                }
+
+                if (restOfRequestedSum == 0) {
+                    for (var banknoteToReturn : banknotesToReturn.entrySet()) {
+                        tryGet(banknoteToReturn.getKey(), banknoteToReturn.getValue());
+                    }
+                    return banknotesToReturn;
+                }
             }
+            --startIndex;
+            banknotesToReturn.clear();
         }
         return null;
     }
