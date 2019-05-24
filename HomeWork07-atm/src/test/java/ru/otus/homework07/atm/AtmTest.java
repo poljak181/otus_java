@@ -62,7 +62,7 @@ class AtmTest {
         atm.putMoney(moneyPack);
 
         var result3 = atm.getMoney(600);
-        assertEquals(3, result2.get(Banknote.RUR_200));
+        assertEquals(3, result3.get(Banknote.RUR_200));
     }
 
     @Test
